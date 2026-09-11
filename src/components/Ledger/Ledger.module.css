@@ -1,0 +1,262 @@
+/*
+ * The Ledger: one neuron's arithmetic, laid out as a balance of forces.
+ *
+ * Each incoming term gets a signed bar growing out from a central zero rule.
+ * The bias is just another row, because that is exactly what it is. Below the
+ * rule the bars resolve into the sum, and the sum lands on the curve.
+ */
+
+.ledger {
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  background: var(--panel);
+  padding: var(--s-3) var(--s-4) var(--s-4);
+}
+
+/* Inside the inspector the frame would be a box within a box, so there is a
+   frameless variant that leans on a single rule instead. */
+.flat {
+  border-top: 1px solid var(--rule);
+  padding-top: var(--s-2);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--rule);
+}
+
+.title {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 500;
+}
+
+.squashName {
+  font-family: var(--font-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+}
+
+.rows {
+  display: grid;
+  grid-template-columns: minmax(3.4rem, auto) auto minmax(48px, 1fr) auto;
+  align-items: center;
+  column-gap: var(--s-3);
+  row-gap: 1px;
+  margin-top: var(--s-2);
+}
+
+.name {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expr,
+.value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-mono-xs);
+  white-space: nowrap;
+}
+
+.value {
+  text-align: right;
+}
+
+.pos {
+  color: var(--excite);
+}
+
+.neg {
+  color: var(--inhibit);
+}
+
+.zero {
+  color: var(--faint);
+}
+
+/* ------------------------------------------------------------------ bars */
+
+.track {
+  position: relative;
+  height: 11px;
+  min-width: 48px;
+}
+
+/* The zero rule. Every bar is measured from it, and it is also the threshold
+   the sum has to cross. */
+.track::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -1px;
+  bottom: -1px;
+  width: 1px;
+  background: var(--rule-strong);
+}
+
+.bar {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  transition: width var(--dur-ui) linear;
+}
+
+.barPos {
+  left: 50%;
+  background: var(--excite);
+}
+
+.barNeg {
+  right: 50%;
+  background: var(--inhibit);
+  /* Hatching so the direction of a bar is not the only cue to its sign. */
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--inhibit) 100%, transparent) 0 3px,
+    color-mix(in srgb, var(--inhibit) 62%, var(--panel)) 3px 6px
+  );
+}
+
+/* ------------------------------------------------------- sum and divider */
+
+.divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: var(--rule);
+  margin: var(--s-2) 0;
+}
+
+.sumRow .expr,
+.sumRow .value,
+.sumRow .name {
+  font-size: var(--t-xs);
+  color: var(--ink);
+}
+
+.sumRow .track {
+  height: 14px;
+}
+
+.sumRow .bar {
+  top: 1px;
+  bottom: 1px;
+}
+
+.thresholdMark {
+  grid-column: 3;
+  position: relative;
+  height: 14px;
+}
+
+.thresholdMark span {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--faint);
+}
+
+/* ----------------------------------------------------------------- curve */
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+
+.curve {
+  width: 236px;
+  max-width: 100%;
+  height: auto;
+  flex: 1 1 180px;
+}
+
+.curveLine {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.curveAxis {
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+}
+
+.curveThreshold {
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.curveDrop {
+  stroke: var(--live);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.curveDot {
+  fill: var(--live);
+  stroke: var(--ink);
+  stroke-width: 1.25;
+}
+
+.curveTick {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  fill: var(--faint);
+  dominant-baseline: alphabetic;
+}
+
+.outcome {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 6rem;
+}
+
+.outcomeLabel {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+}
+
+.outcomeValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.5rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.verdict {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+}
+
+.empty {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--muted);
+  padding: var(--s-2) 0;
+}
+
+/* Rows that are not the one being edited step back out of the way. */
+.dim {
+  opacity: 0.42;
+  transition: opacity var(--dur-ui) var(--ease);
+}

@@ -1,0 +1,94 @@
+/*
+ * Design tokens.
+ *
+ * Six colours, each with exactly one job. Hue is reserved for the sign of a
+ * number; activation strength is achromatic so the two can never be confused.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* --- the six --- */
+  --paper: #f2efe9;      /* the ground: warm off-white, like plotter paper */
+  --ink: #171a1f;        /* text, outlines, and the top of the activation ramp */
+  --excite: #b8501e;     /* copper: positive weight, positive number, above threshold */
+  --inhibit: #1f5a80;    /* steel blue: negative weight, negative number, below threshold */
+  --live: #e0a526;       /* sodium amber: the travelling signal, focus, selection, training */
+  --alert: #8e2f3c;      /* oxblood: a failing row, always paired with a glyph */
+
+  /* --- derived, so a theme only has to redefine the six --- */
+  --panel: color-mix(in srgb, var(--paper) 88%, #ffffff);
+  --panel-sunk: color-mix(in srgb, var(--paper) 95%, var(--ink));
+  --rule: color-mix(in srgb, var(--paper) 78%, var(--ink));
+  --rule-strong: color-mix(in srgb, var(--paper) 58%, var(--ink));
+  --muted: color-mix(in srgb, var(--paper) 38%, var(--ink));
+  --faint: color-mix(in srgb, var(--paper) 60%, var(--ink));
+  --excite-soft: color-mix(in srgb, var(--excite) 14%, var(--paper));
+  --inhibit-soft: color-mix(in srgb, var(--inhibit) 14%, var(--paper));
+  --live-soft: color-mix(in srgb, var(--live) 22%, var(--paper));
+  --alert-soft: color-mix(in srgb, var(--alert) 10%, var(--paper));
+  --on-accent: #fbf8f2;
+
+  /* --- type --- */
+  --font-prose: 'Newsreader Variable', 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-ui: 'IBM Plex Sans Variable', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+
+  --t-mono-xs: 0.719rem;   /* 11.5px — ledger terms, edge labels */
+  --t-xs: 0.8125rem;       /* 13px — captions, table headers */
+  --t-sm: 0.875rem;        /* 14px — UI, buttons */
+  --t-base: 1rem;          /* 16px */
+  --t-prose: 1.125rem;     /* 18px — Newsreader body */
+  --t-lg: 1.375rem;        /* 22px — level title */
+  --t-xl: clamp(1.75rem, 1.3rem + 1.8vw, 2.375rem);
+  --t-display: clamp(2.375rem, 1.4rem + 4.4vw, 4rem);
+
+  /* --- space, on a 4px grid --- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+
+  /* Two radii, and that is all. Nothing is pill-shaped. */
+  --r-sm: 2px;
+  --r-md: 4px;
+
+  --hit: 44px;             /* minimum touch target */
+  --measure: 34rem;        /* prose line length */
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-pulse: 340ms;
+  --dur-ui: 130ms;
+}
+
+/*
+ * Dark theme: the same six names remapped to a graphite instrument panel.
+ * Not a void — the paper becomes slate, and the two signed hues are lightened
+ * so they keep their contrast against it.
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #16181c;
+    --ink: #e9e5dc;
+    --excite: #e87c42;
+    --inhibit: #63a8d4;
+    --live: #f0bc4a;
+    --alert: #d9697a;
+    --panel: color-mix(in srgb, var(--paper) 88%, #ffffff);
+    --panel-sunk: color-mix(in srgb, var(--paper) 94%, var(--ink));
+    --on-accent: #14161a;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-pulse: 1ms;
+    --dur-ui: 1ms;
+  }
+}

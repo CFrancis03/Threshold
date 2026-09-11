@@ -1,0 +1,76 @@
+/*
+ * Type roles.
+ *
+ * Newsreader carries the teaching voice. IBM Plex Sans carries the chrome.
+ * IBM Plex Mono carries every single number, because tabular figures mean a
+ * value can change from 0.44 to 0.97 without nudging the layout by a pixel.
+ */
+
+.prose {
+  font-family: var(--font-prose);
+  font-size: var(--t-prose);
+  line-height: 1.6;
+  max-width: var(--measure);
+  font-variant-numeric: oldstyle-nums;
+}
+
+.prose p + p {
+  margin-top: 0.75em;
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose strong {
+  font-weight: 600;
+}
+
+/* Numbers. Always mono, always tabular, never lining up badly. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'zero' 1;
+  letter-spacing: -0.01em;
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/*
+ * A quiet section marker. Deliberately not a tracked-out all-caps eyebrow:
+ * sentence case, normal tracking, distinguished by weight and colour only.
+ */
+.caption {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--muted);
+}
+
+.h-page {
+  font-family: var(--font-prose);
+  font-size: var(--t-xl);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+.h-level {
+  font-family: var(--font-prose);
+  font-size: var(--t-lg);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.h-display {
+  font-family: var(--font-prose);
+  font-size: var(--t-display);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+}

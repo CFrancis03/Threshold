@@ -1,0 +1,76 @@
+.panel {
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  background: var(--panel);
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4) var(--s-4);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.what {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 500;
+}
+
+.hintRow {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+}
+
+.empty {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--muted);
+}
+
+/*
+ * On a narrow screen the inspector leaves the flow and becomes a sheet at the
+ * bottom of the window, so the network stays visible above it while you drag.
+ */
+@media (max-width: 860px) {
+  .sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    border-radius: var(--r-md) var(--r-md) 0 0;
+    border-bottom: 0;
+    box-shadow: 0 -1px 0 var(--rule-strong);
+    background: var(--panel);
+    max-height: 72vh;
+    overflow-y: auto;
+    padding-bottom: max(var(--s-4), env(safe-area-inset-bottom));
+    animation: rise var(--dur-pulse) var(--ease) both;
+  }
+
+  @keyframes rise {
+    from {
+      transform: translateY(16px);
+      opacity: 0;
+    }
+  }
+
+  .grabber {
+    width: 34px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--rule-strong);
+    margin: 0 auto var(--s-1);
+  }
+}
+
+@media (min-width: 861px) {
+  .grabber {
+    display: none;
+  }
+}

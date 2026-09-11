@@ -1,0 +1,244 @@
+/* Shared UI chrome. Deliberately quiet: the network is the loud thing. */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 38px;
+  padding: 0 var(--s-4);
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  border-radius: var(--r-md);
+  border: 1px solid var(--rule-strong);
+  background: var(--panel);
+  color: var(--ink);
+  transition: background var(--dur-ui) var(--ease), border-color var(--dur-ui) var(--ease);
+}
+
+.button:hover:not(:disabled) {
+  background: var(--panel-sunk);
+  border-color: var(--ink);
+}
+
+.button:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.primary {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--ink) 86%, var(--excite));
+  border-color: color-mix(in srgb, var(--ink) 86%, var(--excite));
+}
+
+.quiet {
+  border-color: transparent;
+  background: transparent;
+  padding: 0 var(--s-2);
+  color: var(--muted);
+}
+
+.quiet:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.small {
+  min-height: 30px;
+  font-size: var(--t-xs);
+  padding: 0 var(--s-3);
+}
+
+/* ---------------------------------------------------------------- slider */
+
+.field {
+  display: grid;
+  gap: var(--s-1);
+}
+
+.fieldHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.fieldLabel {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--muted);
+}
+
+.sliderRow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.range {
+  flex: 1;
+  appearance: none;
+  height: var(--hit);
+  background: transparent;
+  margin: 0;
+  min-width: 0;
+}
+
+.range::-webkit-slider-runnable-track {
+  height: 3px;
+  background: var(--rule-strong);
+  border-radius: 2px;
+}
+
+.range::-moz-range-track {
+  height: 3px;
+  background: var(--rule-strong);
+  border-radius: 2px;
+}
+
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7.5px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+}
+
+.range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+}
+
+.range:focus-visible {
+  outline: 2px solid var(--live);
+  outline-offset: 4px;
+  border-radius: var(--r-sm);
+}
+
+.number {
+  width: 5.4rem;
+  min-height: 34px;
+  padding: 0 var(--s-2);
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-sm);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+}
+
+.number:focus-visible {
+  outline: 2px solid var(--live);
+  outline-offset: 1px;
+}
+
+/* ------------------------------------------------------------- segmented */
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--panel);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.segment {
+  min-height: 34px;
+  padding: 0 var(--s-3);
+  border: 0;
+  border-right: 1px solid var(--rule-strong);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--muted);
+  transition: background var(--dur-ui) var(--ease), color var(--dur-ui) var(--ease);
+}
+
+.segment:last-child {
+  border-right: 0;
+}
+
+.segment:hover:not(.segmentOn) {
+  background: var(--panel-sunk);
+  color: var(--ink);
+}
+
+.segmentOn {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.segment:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------ pips */
+
+.pips {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--rule-strong);
+}
+
+.pipOn {
+  background: var(--excite);
+  border-color: var(--excite);
+}
+
+/* ----------------------------------------------------------------- plate */
+
+/*
+ * The instrument plate. The only framed surface on a page, so that "this is
+ * the live thing" is carried by the frame rather than by every block having
+ * one. A hairline and a tone shift, never a shadow.
+ */
+.plate {
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  background: var(--panel-sunk);
+  padding: var(--s-4) var(--s-4) var(--s-3);
+}
+
+.plateHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-2);
+  flex-wrap: wrap;
+}
+
+.plateTitle {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--muted);
+}

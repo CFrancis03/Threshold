@@ -1,0 +1,34 @@
+/* Development playground. Not linked from the site. */
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+  gap: var(--s-6);
+  padding: var(--s-6) var(--s-5);
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.instrument {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: center;
+}
+
+.side {
+  display: grid;
+  gap: var(--s-4);
+}
+
+@media (max-width: 860px) {
+  .page {
+    grid-template-columns: 1fr;
+    padding: var(--s-4);
+  }
+}

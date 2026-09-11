@@ -1,0 +1,182 @@
+.wrap {
+  position: relative;
+  width: 100%;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: none;
+}
+
+/* ---------------------------------------------------------------- edges */
+
+.edge {
+  fill: none;
+  stroke-linecap: round;
+  transition: stroke-width var(--dur-ui) var(--ease), opacity var(--dur-ui) var(--ease);
+}
+
+.pos {
+  stroke: var(--excite);
+}
+
+.neg {
+  stroke: var(--inhibit);
+  /* Sign is carried by line style as well as hue, so the drawing still reads
+     with no colour vision at all. */
+  stroke-dasharray: 5.5 4;
+}
+
+.dead {
+  opacity: 0.28;
+}
+
+.hit {
+  fill: none;
+  stroke: transparent;
+  /* Explicit, so the invisible hit stroke keeps catching pointers no matter
+     how a browser treats a fully transparent paint. */
+  pointer-events: stroke;
+  cursor: ns-resize;
+  outline: none;
+}
+
+.hit:focus {
+  outline: none;
+}
+
+/* A sleeve of light around whatever is being touched. Kept translucent so a
+   thin, near-zero weight still reads as thin rather than being swallowed. */
+.halo {
+  fill: none;
+  stroke: var(--live);
+  stroke-linecap: round;
+  opacity: 0.3;
+}
+
+.haloSelected {
+  opacity: 0.5;
+}
+
+/* ---------------------------------------------------------------- pulse */
+
+.pulse {
+  fill: none;
+  stroke: var(--live);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 11 120;
+  opacity: 0;
+  animation: travel var(--dur-pulse) var(--ease) var(--pulse-delay, 0ms) both;
+}
+
+@keyframes travel {
+  0% {
+    stroke-dashoffset: 11;
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.95;
+  }
+  100% {
+    stroke-dashoffset: -100;
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------- neurons */
+
+.neuronRim {
+  fill: var(--panel);
+  stroke: var(--rule-strong);
+  stroke-width: 1.25;
+}
+
+.neuronFill {
+  fill: var(--ink);
+  pointer-events: none;
+  transition: fill-opacity var(--dur-ui) linear;
+}
+
+.neuronHit {
+  fill: transparent;
+  pointer-events: fill;
+  cursor: ns-resize;
+  outline: none;
+}
+
+.inputHit {
+  cursor: pointer;
+}
+
+/*
+ * A halo in the opposite tone keeps the number legible at every fill level,
+ * including the mid-greys where neither dark nor light text would pass on its
+ * own. Same trick a map uses for place names over varied terrain.
+ */
+.readout {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 500;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke-width: 2.75;
+  stroke-linejoin: round;
+  fill: var(--ink);
+  stroke: color-mix(in srgb, var(--panel) 78%, transparent);
+}
+
+.readoutOn {
+  fill: var(--paper);
+  stroke: color-mix(in srgb, var(--ink) 62%, transparent);
+}
+
+/* ------------------------------------------------------------ bias rings */
+
+.bias {
+  fill: none;
+  stroke-width: 2.75;
+  stroke-linecap: butt;
+}
+
+.biasTrack {
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+/* ---------------------------------------------------------------- labels */
+
+.edgeLabel {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3.5;
+  stroke-linejoin: round;
+}
+
+.sideLabel {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  fill: var(--muted);
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.sideLabelLeft {
+  text-anchor: end;
+}
+
+.sideLabelRight {
+  text-anchor: start;
+}

@@ -14,12 +14,9 @@ export interface NameOptions {
 }
 
 export function nodeName(node: NodeGeom, columns: number, opts: NameOptions = {}): string {
+  void columns;
   if (node.kind === 'input') return opts.inputLabels?.[node.index] ?? `input ${node.index + 1}`;
-  if (node.kind === 'output') {
-    const custom = opts.outputLabels?.[node.index];
-    if (custom) return custom;
-    return columns > 2 ? 'output' : `output ${node.index + 1}`;
-  }
+  if (node.kind === 'output') return opts.outputLabels?.[node.index] ?? 'output';
   return `hidden ${node.index + 1}`;
 }
 
@@ -35,7 +32,9 @@ export function nameFor(
   if (column === columns - 1) {
     const custom = opts.outputLabels?.[index];
     if (custom) return custom;
-    return columns > 2 ? 'output' : `output ${index + 1}`;
+    // Numbering a lone output neuron just adds a digit nobody needs.
+    const outputs = net.layers[net.layers.length - 1].biases.length;
+    return outputs === 1 ? 'output' : `output ${index + 1}`;
   }
   return `hidden ${index + 1}`;
 }

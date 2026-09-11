@@ -85,6 +85,14 @@
   transform: scale(1.35);
 }
 
+.stepLocked {
+  opacity: 0.5;
+}
+
+.stepLocked:hover {
+  transform: none;
+}
+
 .stepDone {
   background: var(--excite);
   border-color: var(--excite);

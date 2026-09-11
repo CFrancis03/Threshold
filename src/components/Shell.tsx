@@ -31,14 +31,19 @@ export function Shell({ route, children }: { route: Route; children: ReactNode }
             const done = Boolean(progress.completed[n]);
             const open = isUnlocked(n);
             const state = done ? 'finished' : open ? 'unlocked' : 'locked';
-            return (
+            const className = `${css.step} ${done ? css.stepDone : ''} ${n === currentLevel ? css.stepCurrent : ''}`;
+            // A locked level is not somewhere you can go, so it is not a tab
+            // stop. Seven dead stops before the network would be a long walk.
+            return open ? (
               <Link
                 key={n}
-                to={open ? `/play/${n}` : '/play'}
-                className={`${css.step} ${done ? css.stepDone : ''} ${n === currentLevel ? css.stepCurrent : ''}`}
+                to={`/play/${n}`}
+                className={className}
                 aria-label={`Level ${n}, ${state}`}
                 aria-current={n === currentLevel ? 'page' : undefined}
               />
+            ) : (
+              <span key={n} className={`${className} ${css.stepLocked}`} aria-label={`Level ${n}, locked`} role="img" />
             );
           })}
         </nav>

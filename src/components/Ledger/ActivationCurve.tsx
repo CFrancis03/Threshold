@@ -73,7 +73,7 @@ export function ActivationCurve({
       {/* Two tiny anchors, so the picture is readable without a caption:
           where zero is on the way in, and where the threshold is on the way
           out. */}
-      <text className={css.curveTick} x={toX(0) - 4} y={height - 3} textAnchor="end">
+      <text className={css.curveTick} x={toX(0) + 4} y={10}>
         z = 0
       </text>
       {showThreshold && (

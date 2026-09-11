@@ -69,22 +69,37 @@ export function NetworkView({
   const drawWidth = Math.max(288, Math.min(measured, layoutOptions?.width ?? 860));
   const tight = drawWidth < 560;
 
+  const columns = net.layers.length + 1;
+  const shortLabels = tight && !inputLabels && !outputLabels;
+
+  // The widest side label decides the horizontal padding. Guessing at a fixed
+  // number here is how "output" ends up hanging off the edge of the drawing.
+  const sideRoom = useMemo(() => {
+    if (shortLabels) return 24;
+    const outputs = net.layers[net.layers.length - 1].biases.length;
+    const texts = [
+      ...Array.from({ length: net.inputSize }, (_, i) => inputLabels?.[i] ?? `input ${i + 1}`),
+      ...Array.from({ length: outputs }, (_, i) => outputLabels?.[i] ?? (outputs === 1 ? 'output' : `output ${i + 1}`)),
+    ];
+    const longest = texts.reduce((n, t) => Math.max(n, t.length), 0);
+    return Math.ceil(longest * 6.1) + 16;
+  }, [net, inputLabels, outputLabels, shortLabels]);
+
   const resolvedLayout = useMemo<LayoutOptions>(
     () => ({
       gap: tight ? 20 : 26,
       maxRadius: tight ? 19 : 21,
       ...layoutOptions,
       width: drawWidth,
-      padX: layoutOptions?.padX ?? (tight ? 34 : 66),
+      padX: layoutOptions?.padX ?? Math.min(drawWidth * 0.26, Math.max(tight ? 30 : 46, sideRoom)),
     }),
-    [drawWidth, tight, layoutOptions],
+    [drawWidth, tight, layoutOptions, sideRoom],
   );
 
   const geom = useMemo(() => layoutNetwork(net, resolvedLayout), [net, resolvedLayout]);
   const trace = useMemo(() => forward(net, inputs), [net, inputs]);
   const names = useMemo(() => ({ inputLabels, outputLabels }), [inputLabels, outputLabels]);
 
-  const columns = net.layers.length + 1;
   const labelledValues = showAllValues ?? (geom.edges.length <= 6 && !tight);
   const canEdit = editable && !!onChange;
 
@@ -183,14 +198,10 @@ export function NetworkView({
                 <text
                   key={`l-${n.key}`}
                   className={`${css.sideLabel} ${left ? css.sideLabelLeft : css.sideLabelRight}`}
-                  x={left ? n.x - n.r - (tight ? 8 : 14) : n.x + n.r + (tight ? 8 : 14)}
+                  x={left ? n.x - n.r - 10 : n.x + n.r + 10}
                   y={n.y}
                 >
-                  {tight && !names.inputLabels && !names.outputLabels
-                    ? left
-                      ? `x${n.index + 1}`
-                      : 'y'
-                    : nameFor(net, n.column, n.index, names)}
+                  {shortLabels ? (left ? `x${n.index + 1}` : 'y') : nameFor(net, n.column, n.index, names)}
                 </text>
               );
             })}

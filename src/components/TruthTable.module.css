@@ -1,0 +1,92 @@
+/*
+ * A table, drawn as a table: horizontal rules only, no box around it, no
+ * alternating fills. The numbers are the content, so they get the mono face
+ * and enough room to breathe.
+ */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table caption {
+  text-align: left;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--muted);
+  padding-bottom: var(--s-1);
+}
+
+.table th {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--muted);
+  text-align: right;
+  padding: var(--s-1) var(--s-2);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.table th:first-child {
+  text-align: left;
+}
+
+.table td {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  text-align: right;
+  padding: 5px var(--s-2);
+  border-bottom: 1px solid var(--rule);
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.inputs {
+  text-align: left !important;
+  color: var(--muted);
+}
+
+.out {
+  font-weight: 500;
+}
+
+.on {
+  color: var(--excite);
+}
+
+.off {
+  color: var(--inhibit);
+}
+
+.mark {
+  width: 2.2rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+}
+
+/*
+ * A wrong row is marked three ways: the glyph, the colour, and a faint hatch.
+ * The hatch is deliberately quiet — it is there so the mark does not depend on
+ * colour, not to shout at someone who has simply not started yet.
+ */
+.bad {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--alert) 7%, transparent) 6px 12px
+  );
+}
+
+.bad .mark {
+  color: var(--alert);
+}
+
+.good .mark {
+  color: var(--muted);
+}
+
+.current {
+  box-shadow: inset 2px 0 0 var(--live);
+}

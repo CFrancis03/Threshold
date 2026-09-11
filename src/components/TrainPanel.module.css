@@ -1,0 +1,46 @@
+.panel {
+  display: grid;
+  gap: var(--s-4);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  background: var(--panel);
+  padding: var(--s-4);
+}
+
+.row {
+  display: flex;
+  gap: var(--s-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s-5);
+  align-items: start;
+}
+
+.verdict {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+  min-height: 1.2em;
+}
+
+/* The learning rate readout, which is the thing the player is experimenting
+   with, so it gets to be a real number rather than a slider position. */
+.rate {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.warn {
+  color: var(--alert);
+}
+
+@media (max-width: 620px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}

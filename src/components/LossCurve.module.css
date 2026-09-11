@@ -1,0 +1,71 @@
+.wrap {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.chart {
+  width: 100%;
+  /* Stretched horizontally rather than scaled, so a wide panel gets a wide
+     curve instead of a tall one. */
+  height: 104px;
+  background: var(--panel);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+}
+
+.line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  /* Keeps the stroke even under the non-uniform scale above. */
+  vector-effect: non-scaling-stroke;
+}
+
+.grid {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.tick {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--faint);
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.readouts {
+  display: flex;
+  gap: var(--s-4);
+}
+
+.readout {
+  display: grid;
+  gap: 0;
+}
+
+.readoutLabel {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+}
+
+.readoutValue {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-base);
+  letter-spacing: -0.01em;
+}
+
+.empty {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  fill: var(--muted);
+}

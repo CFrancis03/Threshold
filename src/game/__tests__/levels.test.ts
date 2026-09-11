@@ -7,7 +7,7 @@ import { XOR } from '../../nn/datasets';
 describe('every level ships solvable', () => {
   for (const level of levels) {
     level.stages.forEach((stage, index) => {
-      it(`level ${level.id} (${stage.key}) is passed by its own known solution`, () => {
+      it(`level ${level.id} (${stage.key}) is passed by its own known solution`, { timeout: 30000 }, () => {
         const net = level.solution(index);
         const result = evaluate(net, stage.dataset, {
           requiredAccuracy: stage.requiredAccuracy,

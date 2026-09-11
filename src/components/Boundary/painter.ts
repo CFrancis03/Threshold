@@ -58,13 +58,17 @@ function lerp(a: Rgb, b: Rgb, t: number, out: Rgb) {
  * the threshold and saturates towards the ends, so an uncertain region looks
  * uncertain instead of looking like a decision.
  */
+/** How far towards the full hue a confident answer goes. Short of 1 so the
+ *  plotted points keep something to sit against. */
+const SATURATION = 0.72;
+
 export function fieldToImage(field: Float32Array, res: number, ramp: Ramp, image: ImageData): ImageData {
   const data = image.data;
   const rgb: Rgb = [0, 0, 0];
   for (let i = 0; i < field.length; i++) {
     const v = field[i];
-    if (v < 0.5) lerp(ramp.mid, ramp.low, Math.min(1, (0.5 - v) * 2 * 0.82), rgb);
-    else lerp(ramp.mid, ramp.high, Math.min(1, (v - 0.5) * 2 * 0.82), rgb);
+    if (v < 0.5) lerp(ramp.mid, ramp.low, Math.min(1, (0.5 - v) * 2 * SATURATION), rgb);
+    else lerp(ramp.mid, ramp.high, Math.min(1, (v - 0.5) * 2 * SATURATION), rgb);
     const p = i * 4;
     data[p] = rgb[0];
     data[p + 1] = rgb[1];

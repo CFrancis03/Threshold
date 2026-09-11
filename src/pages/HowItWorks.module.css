@@ -1,0 +1,95 @@
+.page {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: var(--s-7) var(--s-5) var(--s-8);
+}
+
+.lede {
+  max-width: var(--measure);
+  margin-bottom: var(--s-7);
+}
+
+.section {
+  padding-top: var(--s-6);
+  margin-top: var(--s-6);
+  border-top: 1px solid var(--rule);
+}
+
+.section:first-of-type {
+  border-top: 0;
+  margin-top: 0;
+}
+
+.h {
+  font-family: var(--font-prose);
+  font-size: var(--t-lg);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--s-3);
+  max-width: var(--measure);
+}
+
+.body {
+  max-width: var(--measure);
+}
+
+/* Prose and demonstration side by side, so the thing being described is
+   always next to the words describing it. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s-6);
+  align-items: start;
+  margin-top: var(--s-4);
+}
+
+.demo {
+  display: grid;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.demoRow {
+  display: flex;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.formula {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-sm);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  padding: var(--s-3);
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.formula b {
+  font-weight: 500;
+  color: var(--excite);
+}
+
+.end {
+  margin-top: var(--s-7);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule-strong);
+  display: flex;
+  gap: var(--s-4);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 860px) {
+  .split {
+    grid-template-columns: 1fr;
+    gap: var(--s-4);
+  }
+
+  .page {
+    padding: var(--s-5) var(--s-4) var(--s-8);
+  }
+}

@@ -41,7 +41,7 @@
   --t-prose: 1.125rem;     /* 18px — Newsreader body */
   --t-lg: 1.375rem;        /* 22px — level title */
   --t-xl: clamp(1.75rem, 1.3rem + 1.8vw, 2.375rem);
-  --t-display: clamp(2.375rem, 1.4rem + 4.4vw, 4rem);
+  --t-display: clamp(2.125rem, 1.5rem + 2.6vw, 3rem);
 
   /* --- space, on a 4px grid --- */
   --s-1: 4px;

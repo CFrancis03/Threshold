@@ -128,7 +128,7 @@ export function BoundaryCanvas({
             ? `rgb(${ramp.high[0]}, ${ramp.high[1]}, ${ramp.high[2]})`
             : `rgb(${ramp.low[0]}, ${ramp.low[1]}, ${ramp.low[2]})`;
           ctx.fill();
-          ctx.strokeStyle = `rgba(${ramp.paper[0]}, ${ramp.paper[1]}, ${ramp.paper[2]}, 0.9)`;
+          ctx.strokeStyle = `rgba(${ramp.paper[0]}, ${ramp.paper[1]}, ${ramp.paper[2]}, 0.95)`;
           ctx.lineWidth = Math.max(1, dot * 0.34);
           ctx.stroke();
         }
@@ -204,7 +204,7 @@ export function MiniBoundary({
   label: string;
 }) {
   return (
-    <div>
+    <div className={css.miniItem}>
       <BoundaryCanvas
         net={net}
         dataset={dataset}

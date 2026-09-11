@@ -3,12 +3,15 @@ import css from './Level.module.css';
 import { NetworkView } from '../components/NetworkView/NetworkView';
 import { Inspector } from '../components/Inspector/Inspector';
 import { Ledger } from '../components/Ledger/Ledger';
-import { BoundaryCanvas } from '../components/Boundary/BoundaryCanvas';
+import { BoundaryCanvas, MiniBoundary, miniRowClass } from '../components/Boundary/BoundaryCanvas';
+import { TrainPanel } from '../components/TrainPanel';
 import { TruthTable } from '../components/TruthTable';
-import { Button, Pips, Plate } from '../components/ui/Controls';
+import { Button, Pips, Plate, SegmentedControl } from '../components/ui/Controls';
 import { useNetworkState } from '../state/useNetworkState';
 import { useProgress, LEVEL_COUNT } from '../state/useProgress';
 import { getLevel } from '../game/registry';
+import { setHiddenActivation } from '../nn/network';
+import type { ActivationName } from '../nn/types';
 import { evaluate } from '../game/evaluate';
 import { navigate, Link } from '../router';
 
@@ -101,7 +104,16 @@ function LevelScreen({ id }: { id: number }) {
         <Plate
           title="Live network"
           aside={
-            isLogic ? (
+            // The activation picker belongs on the instrument, not buried in
+            // the inspector, on the level that is entirely about it.
+            level.allow.activation && level.activationChoices ? (
+              <SegmentedControl<ActivationName>
+                label="Squash used by the hidden layer"
+                value={net.layers[0].activation}
+                options={level.activationChoices.map((n) => ({ value: n, label: n }))}
+                onChange={(n) => setNet(setHiddenActivation(net, n))}
+              />
+            ) : isLogic ? (
               <span className={css.inputPicker}>
                 <span className="caption">showing</span>
                 <span className="num caption">
@@ -142,7 +154,39 @@ function LevelScreen({ id }: { id: number }) {
               </div>
             )}
           </div>
+
+          {/* Each hidden neuron's own view of the square, so "this one draws
+              this line" is something you can see rather than infer. */}
+          {level.view === 'boundaryWithHidden' && (
+            <div className={css.miniHeads}>
+              <p className="caption" style={{ flexBasis: '100%', margin: 0 }}>
+                What each hidden neuron sees on its own
+              </p>
+              <div className={miniRowClass}>
+                {net.layers[0].biases.map((_, j) => (
+                  <MiniBoundary
+                    key={j}
+                    net={net}
+                    dataset={stage.dataset}
+                    layer={0}
+                    neuron={j}
+                    label={`hidden ${j + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </Plate>
+
+        {level.allow.train && (
+          <TrainPanel
+            net={net}
+            onNet={setNet}
+            data={stage.dataset.points}
+            defaultLearningRate={level.learningRate}
+            onStartOver={state.reset}
+          />
+        )}
 
         {/* The ledger is always open, because it is the thing that explains
             what a drag just did. Selecting something swaps it for the

@@ -42,7 +42,12 @@
 /* ------------------------------------------------------------------ mini */
 
 .mini {
-  max-width: 108px;
+  max-width: 100%;
+}
+
+.miniItem {
+  flex: 0 0 auto;
+  width: 104px;
 }
 
 .mini .square {
@@ -61,4 +66,10 @@
   display: flex;
   gap: var(--s-3);
   flex-wrap: wrap;
+}
+
+@media (max-width: 420px) {
+  .miniItem {
+    width: 72px;
+  }
 }

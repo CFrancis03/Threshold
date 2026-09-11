@@ -108,7 +108,10 @@ export const Neuron = memo(function Neuron({
         </>
       )}
 
-      {showReadout && (
+      {/* Crowded layers shrink the neurons below the size a five-character
+          number fits in. The fill still carries the activation, and the
+          ledger carries the exact value. */}
+      {showReadout && geom.r >= (valueText.length > 4 ? 16 : 13) && (
         <text className={`${css.readout} ${inverted ? css.readoutOn : ''}`} x={geom.x} y={geom.y}>
           {valueText}
         </text>

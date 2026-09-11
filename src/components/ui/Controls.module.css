@@ -153,20 +153,23 @@
 .segmented {
   display: flex;
   flex-wrap: wrap;
+  gap: 1px;
   border: 1px solid var(--rule-strong);
   border-radius: var(--r-md);
   overflow: hidden;
-  background: var(--panel);
+  /* The gaps show this through, which gives every segment a hairline on every
+     side — including the ones created by wrapping onto a second row. */
+  background: var(--rule-strong);
   width: fit-content;
   max-width: 100%;
 }
 
 .segment {
+  flex: 1 0 auto;
   min-height: 34px;
   padding: 0 var(--s-3);
   border: 0;
-  border-right: 1px solid var(--rule-strong);
-  background: transparent;
+  background: var(--panel);
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 500;
@@ -174,13 +177,13 @@
   transition: background var(--dur-ui) var(--ease), color var(--dur-ui) var(--ease);
 }
 
-.segment:last-child {
-  border-right: 0;
-}
-
 .segment:hover:not(.segmentOn) {
   background: var(--panel-sunk);
   color: var(--ink);
+}
+
+.segment:disabled {
+  background: var(--panel);
 }
 
 .segmentOn {

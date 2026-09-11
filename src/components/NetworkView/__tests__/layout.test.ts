@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { arcPath, layoutNetwork, strokeWidthForWeight } from '../layout';
+import { arcPath, LABEL_GAP, layoutNetwork, strokeWidthForWeight } from '../layout';
 import { createNetwork } from '../../../nn/network';
 
 describe('layoutNetwork', () => {
@@ -105,5 +105,24 @@ describe('weight and bias encodings', () => {
   it('sets the large-arc flag past half a turn', () => {
     expect(arcPath(0, 0, 10, 90).split(' ')[7]).toBe('0');
     expect(arcPath(0, 0, 10, 270).split(' ')[7]).toBe('1');
+  });
+});
+
+describe('label room', () => {
+  it('pushes the outer columns in far enough for their names to fit', () => {
+    // "input 1" beside a 30px neuron needs the first column at least
+    // 30 + gap + text away from the edge, or the name hangs off the drawing.
+    const labelRoom = 46;
+    const l = layoutNetwork(createNetwork([2, 1]), { width: 600, maxRadius: 30, labelRoom });
+    const first = l.nodes.find((n) => n.column === 0)!;
+    const last = l.nodes.find((n) => n.column === 1)!;
+    expect(first.x - first.r - LABEL_GAP - labelRoom).toBeGreaterThanOrEqual(0);
+    expect(last.x + last.r + LABEL_GAP + labelRoom).toBeLessThanOrEqual(600);
+  });
+
+  it('does not let the padding eat the whole drawing on a narrow canvas', () => {
+    const l = layoutNetwork(createNetwork([2, 2, 1]), { width: 300, labelRoom: 400 });
+    expect(l.columnX[0]).toBeLessThanOrEqual(300 * 0.32);
+    expect(l.columnX[l.columnX.length - 1]).toBeGreaterThan(l.columnX[0]);
   });
 });

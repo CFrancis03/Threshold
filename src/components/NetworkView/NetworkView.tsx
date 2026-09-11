@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import css from './NetworkView.module.css';
 import { Edge } from './Edge';
 import { Neuron } from './Neuron';
-import { layoutNetwork, type LayoutOptions } from './layout';
+import { LABEL_GAP, layoutNetwork, type LayoutOptions } from './layout';
 import { describeParam, nameFor, nodeName, sameParam } from './labels';
 import { forward, setBias, setWeight } from '../../nn/network';
 import { normalizeActivation } from '../../nn/activations';
@@ -82,7 +82,9 @@ export function NetworkView({
       ...Array.from({ length: outputs }, (_, i) => outputLabels?.[i] ?? (outputs === 1 ? 'output' : `output ${i + 1}`)),
     ];
     const longest = texts.reduce((n, t) => Math.max(n, t.length), 0);
-    return Math.ceil(longest * 6.1) + 16;
+    // 6.1px per character is a close enough estimate for IBM Plex Sans at
+    // 11.5px; a few pixels of slack covers the wide ones.
+    return Math.ceil(longest * 6.1) + 6;
   }, [net, inputLabels, outputLabels, shortLabels]);
 
   const resolvedLayout = useMemo<LayoutOptions>(
@@ -91,7 +93,8 @@ export function NetworkView({
       maxRadius: tight ? 19 : 21,
       ...layoutOptions,
       width: drawWidth,
-      padX: layoutOptions?.padX ?? Math.min(drawWidth * 0.26, Math.max(tight ? 30 : 46, sideRoom)),
+      padX: layoutOptions?.padX ?? (tight ? 26 : 40),
+      labelRoom: sideRoom,
     }),
     [drawWidth, tight, layoutOptions, sideRoom],
   );
@@ -101,6 +104,16 @@ export function NetworkView({
   const names = useMemo(() => ({ inputLabels, outputLabels }), [inputLabels, outputLabels]);
 
   const labelledValues = showAllValues ?? (geom.edges.length <= 6 && !tight);
+
+  /*
+   * Touch targets. On a phone a connection should be at least 44px thick to
+   * grab, but on a dense network 44px of hit area per edge would overlap so
+   * badly that every tap would be a coin toss. So the sparse networks — which
+   * are the ones the game asks you to drag — get the full 44, accepting that
+   * neighbouring targets touch at the edges. Only the dense networks, which
+   * are trained rather than dragged, fall back to something narrower.
+   */
+  const hitWidth = !tight ? 26 : geom.edges.length <= 12 ? 44 : 24;
   const canEdit = editable && !!onChange;
 
   const isLit = (ref: ParamRef) => sameParam(hovered, ref) || sameParam(focused, ref);
@@ -127,9 +140,12 @@ export function NetworkView({
                 weight={net.layers[e.layer].weights[e.to][e.from]}
                 label={describeParam(net, ref, names)}
                 editable={canEdit}
+                selectable={Boolean(onSelect)}
                 active={isLit(ref)}
+                focused={sameParam(focused, ref)}
                 selected={sameParam(selected, ref)}
                 showValue={labelledValues}
+                hitWidth={hitWidth}
                 onChange={(v) => onChange?.(setWeight(net, e.layer, e.to, e.from, v))}
                 onSelect={() => onSelect?.(sameParam(selected, ref) ? null : ref)}
                 onHover={(on) => setRef(setHovered, ref, on)}
@@ -175,7 +191,9 @@ export function NetworkView({
                 bias={bias}
                 label={isInput ? nodeName(n, columns, names) : describeParam(net, ref, names)}
                 editable={canEdit}
+                selectable={Boolean(onSelect)}
                 active={!isInput && isLit(ref)}
+                focused={!isInput && sameParam(focused, ref)}
                 selected={!isInput && sameParam(selected, ref)}
                 showReadout={showReadouts}
                 onBiasChange={(v) => onChange?.(setBias(net, n.layer, n.index, v))}
@@ -198,7 +216,7 @@ export function NetworkView({
                 <text
                   key={`l-${n.key}`}
                   className={`${css.sideLabel} ${left ? css.sideLabelLeft : css.sideLabelRight}`}
-                  x={left ? n.x - n.r - 10 : n.x + n.r + 10}
+                  x={left ? n.x - n.r - LABEL_GAP : n.x + n.r + LABEL_GAP}
                   y={n.y}
                 >
                   {shortLabels ? (left ? `x${n.index + 1}` : 'y') : nameFor(net, n.column, n.index, names)}

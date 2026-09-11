@@ -1,6 +1,5 @@
 import { Shell } from './components/Shell';
 import { useRoute } from './router';
-import { Lab } from './pages/Lab';
 import { Level } from './pages/Level';
 import { LevelMap } from './pages/LevelMap';
 import { Landing } from './pages/Landing';
@@ -17,7 +16,6 @@ export function App() {
       {route.name === 'level' && <Level id={route.id} />}
       {route.name === 'sandbox' && <Sandbox />}
       {route.name === 'how' && <HowItWorks />}
-      {route.name === 'lab' && <Lab />}
     </Shell>
   );
 }

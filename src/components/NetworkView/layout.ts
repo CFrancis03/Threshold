@@ -59,12 +59,22 @@ export interface LayoutOptions {
   /** Vertical gap between neuron edges within a column. */
   gap?: number;
   maxRadius?: number;
+  /**
+   * Width of the widest text sitting outside the first and last columns.
+   * The padding has to clear the neuron's radius as well, and the radius is
+   * only known once the layout has been worked out — so the caller passes the
+   * text width and this function does the arithmetic.
+   */
+  labelRoom?: number;
 }
 
 const LABEL_T = 0.33;
 
+/** Space between a neuron's rim and its name. Matches NetworkView. */
+export const LABEL_GAP = 10;
+
 export function layoutNetwork(net: Network, opts: LayoutOptions = {}): NetLayout {
-  const { width = 720, padX = 62, padY = 26, gap = 26, maxRadius = 21 } = opts;
+  const { width = 720, padY = 26, gap = 26, maxRadius = 21, labelRoom = 0 } = opts;
 
   const counts = [net.inputSize, ...net.layers.map((l) => l.biases.length)];
   const columns = counts.length;
@@ -73,6 +83,10 @@ export function layoutNetwork(net: Network, opts: LayoutOptions = {}): NetLayout
   // Shrink the neurons rather than the canvas when a column gets crowded.
   const radius = Math.max(11, Math.min(maxRadius, (300 - (tallest - 1) * gap) / (2 * tallest)));
   const height = Math.max(158, tallest * radius * 2 + (tallest - 1) * gap + padY * 2);
+
+  // Now that the radius is known, make sure the outer columns sit far enough
+  // in for their labels to fit beside them.
+  const padX = Math.min(width * 0.32, Math.max(opts.padX ?? 62, radius + LABEL_GAP + labelRoom));
 
   const columnX: number[] = [];
   const span = width - padX * 2;

@@ -77,7 +77,9 @@
     --paper: #16181c;
     --ink: #e9e5dc;
     --excite: #e87c42;
-    --inhibit: #63a8d4;
+    /* Deliberately darker than --excite. Under deuteranopia both lose their
+       hue, and a lightness gap is what is left to tell them apart. */
+    --inhibit: #3a7fb4;
     --live: #f0bc4a;
     --alert: #d9697a;
     --panel: color-mix(in srgb, var(--paper) 88%, #ffffff);

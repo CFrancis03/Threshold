@@ -125,8 +125,9 @@
 }
 
 .range:focus-visible {
-  outline: 2px solid var(--live);
+  outline: 2px solid var(--ink);
   outline-offset: 4px;
+  box-shadow: 0 0 0 7px var(--live-soft);
   border-radius: var(--r-sm);
 }
 
@@ -144,8 +145,9 @@
 }
 
 .number:focus-visible {
-  outline: 2px solid var(--live);
+  outline: 2px solid var(--ink);
   outline-offset: 1px;
+  box-shadow: 0 0 0 4px var(--live-soft);
 }
 
 /* ------------------------------------------------------------- segmented */
@@ -244,4 +246,19 @@
   font-size: var(--t-xs);
   font-weight: 500;
   color: var(--muted);
+}
+
+/* Everything you press gets a full 44px on a touch screen. */
+@media (max-width: 900px) {
+  .button {
+    min-height: 44px;
+  }
+
+  .small {
+    min-height: 44px;
+  }
+
+  .segment {
+    min-height: 44px;
+  }
 }

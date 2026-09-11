@@ -68,13 +68,18 @@ canvas {
 }
 
 /*
- * One focus style for the entire site. It is the amber "live" token, because
- * focus is the same idea as the travelling signal: this is where the current
- * attention is.
+ * One focus style for the entire site: an ink ring inside an amber wash.
+ *
+ * The amber alone would be the obvious choice — focus is the same idea as the
+ * travelling signal — but at 1.9:1 against the paper it does not meet the 3:1
+ * a focus indicator has to clear, and darkening it far enough to pass turns it
+ * into the copper that already means "positive". So the ink carries the
+ * contrast and the amber carries the meaning.
  */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--live);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--live-soft);
   border-radius: var(--r-sm);
 }
 

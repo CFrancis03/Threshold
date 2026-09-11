@@ -14,8 +14,7 @@ export type Route =
   | { name: 'levels' }
   | { name: 'level'; id: number }
   | { name: 'sandbox' }
-  | { name: 'how' }
-  | { name: 'lab' };
+  | { name: 'how' };
 
 function subscribe(onChange: () => void) {
   window.addEventListener('hashchange', onChange);
@@ -39,8 +38,6 @@ export function parseRoute(path: string): Route {
       return { name: 'sandbox' };
     case 'how':
       return { name: 'how' };
-    case 'lab':
-      return { name: 'lab' };
     default:
       return { name: 'landing' };
   }

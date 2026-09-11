@@ -9,9 +9,15 @@ export interface EdgeProps {
   weight: number;
   label: string;
   editable: boolean;
+  /** Clicking opens the inspector, even when the value cannot be changed. */
+  selectable: boolean;
   active: boolean;
+  /** Keyboard focus, which needs a higher-contrast ring than hover does. */
+  focused: boolean;
   selected: boolean;
   showValue: boolean;
+  /** Width of the invisible stroke that catches pointers. */
+  hitWidth: number;
   onChange: (next: number) => void;
   onSelect: () => void;
   onHover: (hovering: boolean) => void;
@@ -31,9 +37,12 @@ export const Edge = memo(function Edge({
   weight,
   label,
   editable,
+  selectable,
   active,
+  focused,
   selected,
   showValue,
+  hitWidth,
   onChange,
   onSelect,
   onHover,
@@ -52,10 +61,17 @@ export const Edge = memo(function Edge({
   const width = strokeWidthForWeight(weight);
   const negative = weight < 0;
   const lit = active || selected || dragging;
+  const interactive = editable || selectable;
 
   return (
     <g>
-      {lit && (
+      {focused && (
+        <>
+          <path className={css.haloFocus} d={d} strokeWidth={width + 13} />
+          <path className={css.haloFocusFill} d={d} strokeWidth={width + 9} />
+        </>
+      )}
+      {lit && !focused && (
         <path
           className={`${css.halo} ${selected ? css.haloSelected : ''}`}
           d={d}
@@ -67,10 +83,11 @@ export const Edge = memo(function Edge({
         d={d}
         strokeWidth={width}
       />
+      {interactive && (
       <path
         className={css.hit}
         d={d}
-        strokeWidth={26}
+        strokeWidth={hitWidth}
         tabIndex={0}
         role="slider"
         aria-label={label}
@@ -85,6 +102,7 @@ export const Edge = memo(function Edge({
         onBlur={() => onFocus(false)}
         {...handlers}
       />
+      )}
       {(showValue || lit) && (
         <text className={css.edgeLabel} x={geom.lx} y={geom.ly - 9} fill="currentColor">
           {signed(weight)}

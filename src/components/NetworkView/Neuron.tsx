@@ -13,7 +13,11 @@ export interface NeuronProps {
   bias: number | null;
   label: string;
   editable: boolean;
+  /** Clicking opens the inspector, even when the value cannot be changed. */
+  selectable: boolean;
   active: boolean;
+  /** Keyboard focus, which needs a higher-contrast ring than hover does. */
+  focused: boolean;
   selected: boolean;
   showReadout: boolean;
   onBiasChange: (next: number) => void;
@@ -36,7 +40,9 @@ export const Neuron = memo(function Neuron({
   bias,
   label,
   editable,
+  selectable,
   active,
+  focused,
   selected,
   showReadout,
   onBiasChange,
@@ -64,6 +70,7 @@ export const Neuron = memo(function Neuron({
   const inverted = normalized > 0.55;
 
   const valueText = isInput ? fixed(activation, Number.isInteger(activation) ? 0 : 1) : fixed(activation);
+  const interactive = editable || selectable || Boolean(onToggle);
 
   const ariaLabel = isInput
     ? `${label}, value ${spoken(activation, 2)}${onToggle ? '. Press to switch it.' : ''}`
@@ -73,7 +80,13 @@ export const Neuron = memo(function Neuron({
 
   return (
     <g>
-      {lit && (
+      {focused && (
+        <>
+          <circle className={css.haloFocus} cx={geom.x} cy={geom.y} r={ringRadius + 3} strokeWidth={9} />
+          <circle className={css.haloFocusFill} cx={geom.x} cy={geom.y} r={ringRadius + 3} strokeWidth={5} />
+        </>
+      )}
+      {lit && !focused && (
         <circle
           className={`${css.halo} ${selected ? css.haloSelected : ''}`}
           cx={geom.x}
@@ -117,6 +130,7 @@ export const Neuron = memo(function Neuron({
         </text>
       )}
 
+      {interactive && (
       <circle
         className={`${css.neuronHit} ${isInput ? css.inputHit : ''}`}
         cx={geom.x}
@@ -136,6 +150,7 @@ export const Neuron = memo(function Neuron({
         onBlur={() => onFocus(false)}
         {...handlers}
       />
+      )}
 
       {bias !== null && lit && (
         <text className={css.edgeLabel} x={geom.x} y={geom.y - ringRadius - 9} fill="currentColor">

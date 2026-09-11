@@ -254,11 +254,11 @@ export function HowItWorks() {
         <Button variant="primary" onClick={() => navigate('/play/1')}>
           Start level 1
         </Button>
-        <span className="caption">
+        <p className="caption">
           Or open the <Link to="/sandbox">sandbox</Link> and build one yourself. All the maths on
           this page lives in <span className="num">src/nn/</span>, written out longhand and
           commented — no libraries.
-        </span>
+        </p>
       </div>
     </div>
   );

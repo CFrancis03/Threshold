@@ -113,13 +113,6 @@ function LevelScreen({ id }: { id: number }) {
                 options={level.activationChoices.map((n) => ({ value: n, label: n }))}
                 onChange={(n) => setNet(setHiddenActivation(net, n))}
               />
-            ) : isLogic ? (
-              <span className={css.inputPicker}>
-                <span className="caption">showing</span>
-                <span className="num caption">
-                  ({inputs.map((v) => (v > 0.5 ? 1 : 0)).join(', ')})
-                </span>
-              </span>
             ) : undefined
           }
         >

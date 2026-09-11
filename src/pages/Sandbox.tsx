@@ -137,6 +137,15 @@ export function Sandbox() {
       </div>
 
       <div className={css.column}>
+        <div>
+          <h1 className="h-page" style={{ fontSize: 'var(--t-lg)' }}>
+            Sandbox
+          </h1>
+          <p className={css.note} style={{ marginTop: 'var(--s-1)' }}>
+            No win condition. Change anything.
+          </p>
+        </div>
+
         {!progress.sandboxUnlocked && (
           <p className={css.note}>
             You have skipped ahead — that is allowed. <Link to="/play">The seven puzzles</Link> explain

@@ -60,6 +60,25 @@
   opacity: 0.5;
 }
 
+/*
+ * Focus. Two strokes: an ink one, and an opaque amber one just inside it, so
+ * what you see is a thin ink outline around a solid amber sleeve — a ring,
+ * not a thicker line. Thickness already means magnitude here, so a focus
+ * indicator that looked like thickness would be saying the wrong thing.
+ */
+.haloFocus {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+}
+
+.haloFocusFill {
+  fill: none;
+  stroke: var(--live);
+  stroke-linecap: round;
+  opacity: 0.95;
+}
+
 /* ---------------------------------------------------------------- pulse */
 
 .pulse {

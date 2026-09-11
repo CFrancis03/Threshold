@@ -91,9 +91,7 @@ export function Landing() {
       </div>
 
       <p className={css.meta}>
-        <span>About twenty minutes.</span>
-        <span>Nothing to sign up for.</span>
-        <span>Progress stays in your browser.</span>
+        <span>About twenty minutes. Your progress stays in this browser.</span>
       </p>
     </div>
   );

@@ -178,11 +178,10 @@
   min-width: 180px;
 }
 
-.inputPicker {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  flex-wrap: wrap;
+@media (max-width: 900px) {
+  .stackSide {
+    flex-basis: 100%;
+  }
 }
 
 .miniHeads {

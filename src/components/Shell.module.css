@@ -24,6 +24,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
+  min-height: 44px;
 }
 
 .mark {
@@ -58,6 +59,11 @@
   color: var(--muted);
   text-decoration: none;
   white-space: nowrap;
+  /* Fills the rail's height so the tap target is the whole strip, not just
+     the text. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }
 
 .nav a:hover,
@@ -74,6 +80,9 @@
 .step {
   width: 9px;
   height: 9px;
+  /* A ring of padding via a transparent border keeps the dot small while the
+     thing you can actually hit is not. */
+  background-clip: content-box;
   border: 1px solid var(--rule-strong);
   border-radius: 50%;
   text-decoration: none;

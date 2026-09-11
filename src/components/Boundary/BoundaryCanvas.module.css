@@ -4,6 +4,15 @@
   max-width: 300px;
 }
 
+/* Stacked under the network on a phone, the heatmap should take the middle of
+   the column rather than hugging one edge of it. */
+@media (max-width: 900px) {
+  .wrap {
+    max-width: 340px;
+    margin-inline: auto;
+  }
+}
+
 .square {
   position: relative;
   width: 100%;

@@ -31,8 +31,28 @@ npm run preview    # serve dist/ locally
 `npm run build` produces a plain static site in `dist/`. It uses hash routing
 and relative asset paths, so it can be dropped onto any static host — GitHub
 Pages, Netlify, S3, a folder behind nginx — with no rewrite rules, no server and
-no configuration. There is no backend and nothing to configure: progress is kept
-in the visitor's own `localStorage` and never leaves the browser.
+no configuration. There is no backend: progress is kept in the visitor's own
+`localStorage` and never leaves the browser.
+
+### GitHub Pages
+
+`.github/workflows/pages.yml` builds and publishes on every push to the default
+branch. It does nothing until Pages is switched on, which is a one-time manual
+step: **Settings → Pages → Source → GitHub Actions**. Until that is set, the
+workflow will run and then fail at the deploy step.
+
+Two things make this work at a project URL like `user.github.io/Threshold/`,
+where a lot of single-page apps break:
+
+- **Relative asset paths.** `base: './'` in `vite.config.ts`, so nothing depends
+  on the site living at the domain root.
+- **Hash routing.** Deep links such as `.../Threshold/#/play/4` survive a hard
+  reload without the 404-fallback trick, because the server only ever sees
+  `index.html`.
+
+A `.nojekyll` file is not needed. The Actions deployment serves the artifact
+as-is without running Jekyll, and Vite's output directory is `assets/`, which
+Jekyll would not have stripped anyway.
 
 ## How it is put together
 

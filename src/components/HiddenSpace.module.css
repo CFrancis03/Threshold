@@ -1,0 +1,30 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4) var(--s-5);
+  align-items: flex-start;
+}
+
+.canvas {
+  flex: 0 1 250px;
+  min-width: 170px;
+}
+
+.words {
+  flex: 1 1 200px;
+  min-width: 0;
+  display: grid;
+  gap: var(--s-2);
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.words p {
+  margin: 0;
+}
+
+.quiet {
+  color: var(--muted);
+}

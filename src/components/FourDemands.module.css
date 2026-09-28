@@ -1,0 +1,178 @@
+/*
+ * The wall, laid out as arithmetic. Framed like the Ledger because it is the
+ * same kind of thing: a live readout of a neuron's sums.
+ */
+.panel {
+  display: grid;
+  gap: var(--s-4);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-md);
+  background: var(--panel);
+  padding: var(--s-4);
+}
+
+.title {
+  font-family: var(--font-prose);
+  font-size: var(--t-lg);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.lead,
+.verdict {
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  line-height: 1.55;
+  max-width: var(--measure);
+}
+
+.verdict {
+  border-top: 1px solid var(--rule);
+  padding-top: var(--s-3);
+}
+
+.sliders {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+/* ------------------------------------------------------------- the table */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--muted);
+  text-align: left;
+  padding: var(--s-1) var(--s-2) var(--s-1) 0;
+  border-bottom: 1px solid var(--rule-strong);
+  white-space: nowrap;
+}
+
+.table td {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  padding: 6px var(--s-2) 6px 0;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.table tr:last-child td {
+  border-bottom: 0;
+}
+
+.corner {
+  color: var(--muted);
+}
+
+.formula {
+  color: var(--muted);
+}
+
+.needs {
+  font-family: var(--font-ui) !important;
+  color: var(--muted);
+}
+
+.mark {
+  text-align: right;
+  font-family: var(--font-ui) !important;
+  font-size: var(--t-sm) !important;
+  padding-right: 0 !important;
+}
+
+.pos {
+  color: var(--excite);
+}
+
+.neg {
+  color: var(--inhibit);
+}
+
+.bad {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--alert) 7%, transparent) 6px 12px
+  );
+}
+
+.bad .mark {
+  color: var(--alert);
+}
+
+/* ------------------------------------------------------------ the pairs */
+
+.pairs {
+  display: grid;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  column-gap: var(--s-4);
+  row-gap: 2px;
+  padding: var(--s-2) 0;
+}
+
+.pair + .pair {
+  border-top: 1px solid var(--rule);
+}
+
+.pairName {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* The same expression on both rows is the point, so it gets its own column
+   and sits directly above itself. */
+.pairMath {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink);
+}
+
+.pairValue {
+  font-family: var(--font-mono);
+  font-size: var(--t-base);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  letter-spacing: -0.01em;
+}
+
+.pairNeeds {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: var(--s-2);
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+}
+
+.pairNeeds .ok {
+  color: var(--ink);
+}
+
+.pairNeeds .no {
+  color: var(--alert);
+}
+
+@media (max-width: 520px) {
+  .sliders {
+    grid-template-columns: 1fr;
+    gap: var(--s-2);
+  }
+}

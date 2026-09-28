@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import css from './BoundaryCanvas.module.css';
 import { contourSegments, fieldToImage, readRamp, type Ramp } from './painter';
-import { fromPixel, sampleField, toPixel } from '../../nn/boundary';
+import { fromPixel, sampleField, toPixel, weightArrow } from '../../nn/boundary';
 import type { Dataset } from '../../nn/datasets';
 import type { Network } from '../../nn/types';
 
@@ -11,6 +11,13 @@ export interface BoundaryCanvasProps {
   /** Read a hidden neuron instead of the output, for the mini-heatmaps. */
   probe?: { layer: number; neuron: number };
   showPoints?: boolean;
+  /**
+   * Say what the two marks mean. On by default whenever points are shown,
+   * because a circle and a square mean nothing until somebody says so.
+   */
+  legend?: boolean;
+  /** Draw which way a single neuron's weights point, standing on the boundary. */
+  showWeightArrow?: boolean;
   /** Sampling grid. Small is fast and, upscaled, still looks smooth. */
   resolution?: number;
   threshold?: number;
@@ -32,6 +39,8 @@ export function BoundaryCanvas({
   dataset,
   probe,
   showPoints = true,
+  legend = true,
+  showWeightArrow = false,
   resolution = 96,
   threshold = 0.5,
   onPlacePoint,
@@ -133,6 +142,45 @@ export function BoundaryCanvas({
           ctx.stroke();
         }
       }
+
+      // Last, so nothing in the data can bury it.
+      if (showWeightArrow) {
+        const arrow = weightArrow(net, dataset.domain);
+        if (arrow) {
+          const [ax, ay] = toPixel(arrow.from[0], arrow.from[1], dataset.domain, pixels, pixels);
+          const [bx, by] = toPixel(arrow.to[0], arrow.to[1], dataset.domain, pixels, pixels);
+          const angle = Math.atan2(by - ay, bx - ax);
+          const head = 9 * dpr;
+          const trace = () => {
+            ctx.beginPath();
+            ctx.moveTo(ax, ay);
+            ctx.lineTo(bx, by);
+            ctx.moveTo(bx - head * Math.cos(angle - 0.45), by - head * Math.sin(angle - 0.45));
+            ctx.lineTo(bx, by);
+            ctx.lineTo(bx - head * Math.cos(angle + 0.45), by - head * Math.sin(angle + 0.45));
+          };
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          // A paper outline underneath, so the arrow reads on warm and cool
+          // ground alike.
+          trace();
+          ctx.strokeStyle = `rgba(${ramp.paper[0]}, ${ramp.paper[1]}, ${ramp.paper[2]}, 0.92)`;
+          ctx.lineWidth = 5 * dpr;
+          ctx.stroke();
+          trace();
+          ctx.strokeStyle = `rgb(${ramp.ink[0]}, ${ramp.ink[1]}, ${ramp.ink[2]})`;
+          ctx.lineWidth = 2 * dpr;
+          ctx.stroke();
+          // Where it stands on the line.
+          ctx.beginPath();
+          ctx.arc(ax, ay, 3.2 * dpr, 0, Math.PI * 2);
+          ctx.fillStyle = `rgb(${ramp.ink[0]}, ${ramp.ink[1]}, ${ramp.ink[2]})`;
+          ctx.fill();
+          ctx.strokeStyle = `rgba(${ramp.paper[0]}, ${ramp.paper[1]}, ${ramp.paper[2]}, 0.95)`;
+          ctx.lineWidth = 1.5 * dpr;
+          ctx.stroke();
+        }
+      }
     };
 
     // Coalesce every change into a single frame.
@@ -143,7 +191,7 @@ export function BoundaryCanvas({
       if (scratch.current.frame) cancelAnimationFrame(scratch.current.frame);
       scratch.current.frame = 0;
     };
-  }, [net, dataset, probe, resolution, showPoints, threshold]);
+  }, [net, dataset, probe, resolution, showPoints, showWeightArrow, threshold]);
 
   // The theme can change under us; drop the cached palette when it does.
   useEffect(() => {
@@ -179,11 +227,25 @@ export function BoundaryCanvas({
           role="img"
           aria-label={
             label ??
-            'The network’s answer across the input space. Warm means above the threshold, cool means below, and the dark line is the boundary between them.'
+            `The network’s answer across the input space. Warm means above the threshold, cool means below, and the dark line is the boundary between them.${
+              showWeightArrow ? ' An arrow standing on the line shows which way the weights point.' : ''
+            }`
           }
           onClick={handleClick}
         />
       </div>
+      {showPoints && legend && (
+        <p className={css.legend}>
+          <span className={css.key}>
+            <i className={css.keyDot} aria-hidden="true" />
+            should fire
+          </span>
+          <span className={css.key}>
+            <i className={css.keySquare} aria-hidden="true" />
+            should stay quiet
+          </span>
+        </p>
+      )}
       {caption && <figcaption className={css.caption}>{caption}</figcaption>}
     </figure>
   );

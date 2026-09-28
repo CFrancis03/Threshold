@@ -73,6 +73,11 @@
   gap: var(--s-3);
 }
 
+.fieldHeadCompact {
+  justify-content: flex-start;
+  gap: var(--s-2);
+}
+
 .fieldLabel {
   font-family: var(--font-ui);
   font-size: var(--t-xs);
@@ -248,6 +253,69 @@
   color: var(--muted);
 }
 
+/* ---------------------------------------------------------------- toggle */
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 34px;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle:hover {
+  color: var(--ink);
+}
+
+/* The real checkbox stays in the layout, invisible, so it keeps its focus and
+   keyboard behaviour. Only its picture is replaced. */
+.toggleInput {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+.toggleBox {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+  transition: background var(--dur-ui) var(--ease), border-color var(--dur-ui) var(--ease);
+}
+
+.toggleInput:checked + .toggleBox {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+/* The tick is drawn, not typed, so it is the same weight in every font. */
+.toggleInput:checked + .toggleBox::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0.5px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--paper);
+  border-width: 0 1.75px 1.75px 0;
+  transform: rotate(40deg);
+}
+
+.toggleInput:focus-visible + .toggleBox {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--live-soft);
+}
+
 /* Everything you press gets a full 44px on a touch screen. */
 @media (max-width: 900px) {
   .button {
@@ -259,6 +327,10 @@
   }
 
   .segment {
+    min-height: 44px;
+  }
+
+  .toggle {
     min-height: 44px;
   }
 }

@@ -48,6 +48,12 @@ export interface SliderProps {
   decimals?: number;
   /** Hide the number box when the slider alone is enough. */
   hideNumber?: boolean;
+  /**
+   * Keep the note beside the label instead of pushing it to the far edge.
+   * Needed when several sliders share a row, or "w₂" ends up reading as part of
+   * the previous slider's value.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -65,6 +71,7 @@ export function Slider({
   disabled,
   decimals = 2,
   hideNumber,
+  compact,
 }: SliderProps) {
   const id = useId();
   // Kept as text while focused so a half-typed "-" or "0." is not destroyed.
@@ -78,7 +85,7 @@ export function Slider({
 
   return (
     <div className={css.field}>
-      <div className={css.fieldHead}>
+      <div className={`${css.fieldHead} ${compact ? css.fieldHeadCompact : ''}`}>
         <label className={css.fieldLabel} htmlFor={id}>
           {label}
         </label>
@@ -199,5 +206,36 @@ export function Plate({
       )}
       {children}
     </section>
+  );
+}
+
+/* -------------------------------------------------------------- Toggle */
+
+/**
+ * A single on/off choice. A real checkbox underneath, so it is announced, focus
+ * behaves and the space bar works without any of that being re-invented.
+ */
+export function Toggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (next: boolean) => void;
+}) {
+  const id = useId();
+  return (
+    <label className={css.toggle} htmlFor={id}>
+      <input
+        id={id}
+        className={css.toggleInput}
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+      />
+      <span className={css.toggleBox} aria-hidden="true" />
+      <span>{label}</span>
+    </label>
   );
 }

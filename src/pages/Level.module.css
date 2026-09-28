@@ -190,6 +190,37 @@
   flex-wrap: wrap;
 }
 
+/* ------------------------------------------------------------ the wall */
+
+/* Where a level has to explain why the player is stuck. Set off with a rule,
+   like the finished note, rather than boxed. */
+.wall {
+  display: grid;
+  gap: var(--s-3);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule-strong);
+}
+
+.wallTitle {
+  font-family: var(--font-prose);
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.wallText {
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  line-height: 1.55;
+  max-width: var(--measure);
+}
+
+/* Something that can be scrolled to needs to clear the sticky rail. */
+.plateAnchor {
+  scroll-margin-top: 64px;
+}
+
 /* ----------------------------------------------------------- responsive */
 
 @media (max-width: 900px) {

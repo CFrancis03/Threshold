@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import css from './Level.module.css';
 import { NetworkView } from '../components/NetworkView/NetworkView';
 import { Inspector } from '../components/Inspector/Inspector';
@@ -6,15 +6,16 @@ import { Ledger } from '../components/Ledger/Ledger';
 import { BoundaryCanvas, MiniBoundary, miniRowClass } from '../components/Boundary/BoundaryCanvas';
 import { TrainPanel } from '../components/TrainPanel';
 import { TruthTable } from '../components/TruthTable';
-import { Button, Pips, Plate, SegmentedControl } from '../components/ui/Controls';
+import { Button, Pips, Plate, SegmentedControl, Toggle } from '../components/ui/Controls';
 import { useNetworkState } from '../state/useNetworkState';
 import { useProgress, LEVEL_COUNT } from '../state/useProgress';
 import { getLevel } from '../game/registry';
 import { setHiddenActivation } from '../nn/network';
 import type { ActivationName } from '../nn/types';
 import { evaluate } from '../game/evaluate';
-import { navigate, Link } from '../router';
-
+import { navigate } from '../router';
+import { useIsNarrow, usePrefersReducedMotion } from '../lib/motion';
+import { extras } from './levelExtras';
 
 const HINT_DELAY_MS = 60_000;
 
@@ -27,6 +28,10 @@ export function Level({ id }: { id: number }) {
 function LevelScreen({ id }: { id: number }) {
   const level = getLevel(id)!;
   const { complete, isUnlocked } = useProgress();
+  const ex = extras[id] ?? {};
+  const narrow = useIsNarrow(900);
+  const reducedMotion = usePrefersReducedMotion();
+  const plateRef = useRef<HTMLDivElement | null>(null);
 
   const [stageIndex, setStageIndex] = useState(0);
   const stage = level.stages[stageIndex];
@@ -41,6 +46,10 @@ function LevelScreen({ id }: { id: number }) {
   const [escaped, setEscaped] = useState(false);
   const [finished, setFinished] = useState(false);
   const [awarded, setAwarded] = useState(0);
+  /** Whether the argument for the wall is open. */
+  const [whyOpen, setWhyOpen] = useState(false);
+  /** Whether the weight arrow is drawn on the boundary picture. */
+  const [arrowOn, setArrowOn] = useState(false);
   /** The level 4 beat: the best score reached so far, which will not reach 4. */
   const [best, setBest] = useState(0);
 
@@ -89,6 +98,11 @@ function LevelScreen({ id }: { id: number }) {
     state.replace(level.escape.apply(net), true);
     setEscaped(true);
     setChecked(false);
+    // On a phone the network is above the button that was just pressed, so
+    // without this the change happens out of sight.
+    if (narrow) {
+      plateRef.current?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
+    }
   };
 
   const showEscape = Boolean(level.escape) && !escaped && (attempts >= level.escape!.afterAttempts || hintShown);
@@ -101,6 +115,7 @@ function LevelScreen({ id }: { id: number }) {
   return (
     <div className={css.page}>
       <div className={css.instrument}>
+        <div ref={plateRef} className={css.plateAnchor}>
         <Plate
           title="Live network"
           aside={
@@ -142,8 +157,12 @@ function LevelScreen({ id }: { id: number }) {
                 <BoundaryCanvas
                   net={net}
                   dataset={stage.dataset}
+                  showWeightArrow={arrowOn}
                   caption={`${stage.dataset.label} · the dark line is the boundary`}
                 />
+                {ex.arrowToggle && (
+                  <Toggle label={ex.arrowToggle} checked={arrowOn} onChange={setArrowOn} />
+                )}
               </div>
             )}
           </div>
@@ -170,6 +189,9 @@ function LevelScreen({ id }: { id: number }) {
             </div>
           )}
         </Plate>
+        </div>
+
+        {ex.Peek && <ex.Peek net={net} dataset={stage.dataset} />}
 
         {level.allow.train && (
           <TrainPanel
@@ -275,7 +297,7 @@ function LevelScreen({ id }: { id: number }) {
               Start over
             </Button>
           )}
-          {showEscape && (
+          {showEscape && !ex.Wall && (
             <Button onClick={applyEscape}>{level.escape!.label}</Button>
           )}
         </div>
@@ -294,6 +316,40 @@ function LevelScreen({ id }: { id: number }) {
           </p>
         )}
 
+        {/* Where a level has a wall, this is the moment to explain it: after a
+            few honest attempts, or when asked. The hidden layer is offered
+            beside the argument, never behind it. */}
+        {ex.Wall && showEscape && (
+          <section className={css.wall} aria-labelledby="wall-title">
+            <h2 id="wall-title" className={css.wallTitle}>
+              {best >= 3 ? 'Stuck on three of four?' : 'Not getting anywhere?'}
+            </h2>
+            <p className={css.wallText}>
+              {best >= 3 ? 'That isn’t you. ' : 'Fair enough, this one is harder than it looks. '}
+              Three of four is the most a single neuron can ever manage here, and there is a short
+              argument for why. Read it, or skip it and take the hidden layer.
+            </p>
+            <div className={css.actions}>
+              <Button
+                variant={whyOpen ? 'default' : 'primary'}
+                aria-expanded={whyOpen}
+                aria-controls="wall-argument"
+                onClick={() => setWhyOpen((open) => !open)}
+              >
+                {whyOpen ? 'Hide the argument' : 'Show me why'}
+              </Button>
+              <Button variant={whyOpen ? 'primary' : 'default'} onClick={applyEscape}>
+                {level.escape!.label}
+              </Button>
+            </div>
+            {whyOpen && (
+              <div id="wall-argument">
+                <ex.Wall net={net} onChange={setNet} />
+              </div>
+            )}
+          </section>
+        )}
+
         {finished && (
           <div className={css.learned}>
             <p className={css.learnedLabel}>
@@ -308,14 +364,19 @@ function LevelScreen({ id }: { id: number }) {
                 <Button variant="primary" onClick={nextStage}>
                   Next part
                 </Button>
+              ) : level.id === LEVEL_COUNT ? (
+                // The whole game is built to lead here.
+                <Button variant="primary" onClick={() => navigate('/sandbox')}>
+                  Open the sandbox
+                </Button>
               ) : isUnlocked(level.id + 1) && getLevel(level.id + 1) ? (
                 <Button variant="primary" onClick={() => navigate(`/play/${level.id + 1}`)}>
                   Level {level.id + 1}
                 </Button>
               ) : (
-                <Link to="/play">
-                  <Button variant="primary">Back to the levels</Button>
-                </Link>
+                <Button variant="primary" onClick={() => navigate('/play')}>
+                  Back to the levels
+                </Button>
               )}
             </div>
           </div>
@@ -344,9 +405,9 @@ function NotBuiltYet({ id }: { id: number }) {
         <div className="prose">
           <p>Come back in a moment. In the meantime, the earlier levels are all playable.</p>
         </div>
-        <Link to="/play">
-          <Button variant="primary">Back to the levels</Button>
-        </Link>
+        <Button variant="primary" onClick={() => navigate('/play')}>
+          Back to the levels
+        </Button>
       </div>
     </div>
   );

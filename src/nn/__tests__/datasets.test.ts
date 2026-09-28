@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { AND, NAND, OR, XOR, datasets, makeCircle, makeRing, makeSpiral, makeTwoClusters } from '../datasets';
-import { sampleField, fromPixel, toPixel } from '../boundary';
+import { sampleField, fromPixel, toPixel, weightArrow } from '../boundary';
 import { createNetwork, setBias, setWeight } from '../network';
+import { makeRng } from '../rng';
 
 describe('logic datasets', () => {
   it('cover all four corners in a stable order', () => {
@@ -100,5 +101,80 @@ describe('decision boundary sampling', () => {
     expect(x).toBeCloseTo(0);
     expect(y).toBeCloseTo(0);
     expect(toPixel(-1, 1, domain, 200, 200)).toEqual([0, 0]);
+  });
+});
+
+describe('weight arrow', () => {
+  const domain: [[number, number], [number, number]] = [[-1, 1], [-1, 1]];
+  const neuron = (w1: number, w2: number, b: number) => {
+    let net = createNetwork([2, 1]);
+    net = setWeight(net, 0, 0, 0, w1);
+    net = setWeight(net, 0, 0, 1, w2);
+    return setBias(net, 0, 0, b);
+  };
+
+  it('stands on the boundary line', () => {
+    for (const [w1, w2, b] of [[3, 2, 0.4], [-1.5, 4, -0.3], [0.5, -6, 0.2], [7, 0.1, -0.5]]) {
+      const arrow = weightArrow(neuron(w1, w2, b), domain)!;
+      expect(w1 * arrow.from[0] + w2 * arrow.from[1] + b).toBeCloseTo(0, 9);
+    }
+  });
+
+  it('points the way the weights point, at right angles to the line', () => {
+    const w1 = 3;
+    const w2 = -2;
+    const arrow = weightArrow(neuron(w1, w2, 0.1), domain)!;
+    const ax = arrow.to[0] - arrow.from[0];
+    const ay = arrow.to[1] - arrow.from[1];
+    // Parallel to (w1, w2): the cross product vanishes, the dot product is positive.
+    expect(ax * w2 - ay * w1).toBeCloseTo(0, 9);
+    expect(ax * w1 + ay * w2).toBeGreaterThan(0);
+    // ...and therefore square to the line, whose direction is (-w2, w1).
+    expect(ax * -w2 + ay * w1).toBeCloseTo(0, 9);
+  });
+
+  it('points at the side that fires', () => {
+    const net = neuron(2, 5, -0.7);
+    const arrow = weightArrow(net, domain)!;
+    const [tx, ty] = arrow.to;
+    expect(2 * tx + 5 * ty - 0.7).toBeGreaterThan(0);
+  });
+
+  it('follows a steep line that misses the middle of the picture', () => {
+    // This line is nowhere near the centre, and only just clips a corner.
+    const arrow = weightArrow(neuron(1, 1, -1.8), domain)!;
+    expect(arrow).not.toBeNull();
+    for (const [x, y] of [arrow.from, arrow.to]) {
+      expect(x).toBeGreaterThanOrEqual(-1);
+      expect(x).toBeLessThanOrEqual(1);
+      expect(y).toBeGreaterThanOrEqual(-1);
+      expect(y).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('keeps both ends inside the picture whatever the geometry', () => {
+    for (let seed = 1; seed <= 300; seed++) {
+      const rng = makeRng(seed);
+      const net = neuron((rng() - 0.5) * 12, (rng() - 0.5) * 12, (rng() - 0.5) * 3);
+      const arrow = weightArrow(net, domain);
+      if (!arrow) continue;
+      for (const [x, y] of [arrow.from, arrow.to]) {
+        expect(x).toBeGreaterThanOrEqual(-1 - 1e-9);
+        expect(x).toBeLessThanOrEqual(1 + 1e-9);
+        expect(y).toBeGreaterThanOrEqual(-1 - 1e-9);
+        expect(y).toBeLessThanOrEqual(1 + 1e-9);
+      }
+    }
+  });
+
+  it('has nothing to draw for an untouched neuron, or a line outside the picture', () => {
+    expect(weightArrow(neuron(0, 0, 0), domain)).toBeNull();
+    expect(weightArrow(neuron(1, 1, -9), domain)).toBeNull();
+  });
+
+  it('only describes a single neuron whose boundary sits at zero', () => {
+    expect(weightArrow(createNetwork([2, 2, 1], { seed: 1 }), domain)).toBeNull();
+    expect(weightArrow(createNetwork([2, 1], { hidden: 'tanh', seed: 1 }), domain)).toBeNull();
+    expect(weightArrow(createNetwork([2, 1], { hidden: 'relu', seed: 1 }), domain)).toBeNull();
   });
 });

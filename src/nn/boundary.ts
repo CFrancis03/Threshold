@@ -102,3 +102,80 @@ export function fromPixel(
   const [[x0, x1], [y0, y1]] = domain;
   return [x0 + (px / width) * (x1 - x0), y1 - (py / height) * (y1 - y0)];
 }
+
+export interface WeightArrow {
+  /** On the boundary line, in the middle of the part you can see. */
+  from: [number, number];
+  /** Where the arrow points: the side of the line that makes the neuron fire. */
+  to: [number, number];
+}
+
+/**
+ * Which way the weights point, as an arrow standing on the decision boundary.
+ *
+ * For a single neuron the boundary is the line w1·x + w2·y + b = 0, and the
+ * weight vector (w1, w2) is exactly perpendicular to it, aimed at the side
+ * where the neuron fires. Change the weights and the line swings round to stay
+ * square to the arrow; change the bias and the line slides along it. Drawing
+ * the arrow makes that visible, which is much easier to believe than to be
+ * told.
+ *
+ * Only defined for one neuron whose boundary sits at z = 0 (sigmoid or step).
+ * Returns null when there is nothing sensible to draw.
+ */
+export function weightArrow(
+  net: Network,
+  domain: [[number, number], [number, number]],
+  lengthFraction = 0.26,
+): WeightArrow | null {
+  if (net.inputSize !== 2 || net.layers.length !== 1 || net.layers[0].biases.length !== 1) return null;
+  const { activation, weights, biases } = net.layers[0];
+  if (activation !== 'sigmoid' && activation !== 'step') return null;
+
+  const [w1, w2] = weights[0];
+  const b = biases[0];
+  const norm2 = w1 * w1 + w2 * w2;
+  if (norm2 < 1e-9) return null;
+  const norm = Math.sqrt(norm2);
+
+  const [[x0, x1], [y0, y1]] = domain;
+
+  // A point on the line: the foot of the perpendicular from the origin.
+  const px = (-b * w1) / norm2;
+  const py = (-b * w2) / norm2;
+  // The line runs at right angles to the weights.
+  const dx = -w2 / norm;
+  const dy = w1 / norm;
+
+  // Clip the line to the picture and take the middle of what is left, so the
+  // arrow always stands on a part of the boundary you can actually see — even
+  // for a steep line that misses the centre of the square entirely.
+  let tMin = -Infinity;
+  let tMax = Infinity;
+  const clip = (p: number, d: number, lo: number, hi: number): boolean => {
+    if (Math.abs(d) < 1e-12) return p >= lo && p <= hi;
+    const t1 = (lo - p) / d;
+    const t2 = (hi - p) / d;
+    tMin = Math.max(tMin, Math.min(t1, t2));
+    tMax = Math.min(tMax, Math.max(t1, t2));
+    return true;
+  };
+  if (!clip(px, dx, x0, x1) || !clip(py, dy, y0, y1) || tMin > tMax) return null;
+
+  const t = (tMin + tMax) / 2;
+  const fromX = px + dx * t;
+  const fromY = py + dy * t;
+
+  const ux = w1 / norm;
+  const uy = w2 / norm;
+  let length = lengthFraction * Math.min(x1 - x0, y1 - y0);
+  // Keep the tip inside the picture.
+  for (let i = 0; i < 16; i++) {
+    const tx = fromX + ux * length;
+    const ty = fromY + uy * length;
+    if (tx >= x0 && tx <= x1 && ty >= y0 && ty <= y1) break;
+    length *= 0.8;
+  }
+
+  return { from: [fromX, fromY], to: [fromX + ux * length, fromY + uy * length] };
+}

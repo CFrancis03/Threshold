@@ -15,7 +15,7 @@ export function App() {
       {route.name === 'levels' && <LevelMap />}
       {route.name === 'level' && <Level id={route.id} />}
       {route.name === 'sandbox' && <Sandbox />}
-      {route.name === 'how' && <HowItWorks />}
+      {route.name === 'how' && <HowItWorks anchor={route.anchor} />}
     </Shell>
   );
 }

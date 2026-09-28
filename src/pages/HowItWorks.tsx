@@ -1,10 +1,15 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import css from './HowItWorks.module.css';
 import { NetworkView } from '../components/NetworkView/NetworkView';
 import { Ledger } from '../components/Ledger/Ledger';
 import { BoundaryCanvas, MiniBoundary, miniRowClass } from '../components/Boundary/BoundaryCanvas';
 import { TrainPanel } from '../components/TrainPanel';
-import { Button, Plate, SegmentedControl } from '../components/ui/Controls';
+import { HiddenSpace } from '../components/HiddenSpace';
+import { CollapseDemo } from '../components/CollapseDemo';
+import { GradientDescent1D } from '../components/GradientDescent1D';
+import { SelfCheck } from '../components/SelfCheck';
+import { Glossary } from '../components/Glossary';
+import { Button, Plate, SegmentedControl, Toggle } from '../components/ui/Controls';
 import { useNetworkState } from '../state/useNetworkState';
 import { navigate, Link } from '../router';
 import { createNetwork, setHiddenActivation } from '../nn/network';
@@ -17,9 +22,20 @@ import type { ActivationName } from '../nn/types';
 const CLUSTERS = makeTwoClusters();
 const CIRCLE = makeCircle();
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+/** The sections, in reading order. The ids double as `#/how/<id>` links. */
+const SECTIONS = [
+  { id: 'neuron', label: 'A neuron' },
+  { id: 'line', label: 'One straight line' },
+  { id: 'hidden', label: 'Hidden layers' },
+  { id: 'squash', label: 'The squash' },
+  { id: 'training', label: 'Training' },
+  { id: 'check', label: 'Check yourself' },
+  { id: 'words', label: 'Words' },
+] as const;
+
+function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
-    <section className={css.section}>
+    <section id={`how-${id}`} className={css.section}>
       <h2 className={css.h}>{title}</h2>
       {children}
     </section>
@@ -33,13 +49,21 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
  * Every diagram on this page is the same live component the game uses, not a
  * picture of one. If you do not believe a sentence, you can go and disturb it.
  */
-export function HowItWorks() {
+export function HowItWorks({ anchor }: { anchor?: string }) {
   const one = useNetworkState(createNetwork([2, 1], { seed: 47 }), [1, 0]);
   const line = useNetworkState(level3.solution(), [0.4, 0.4]);
   const xor = useNetworkState(level4.solution(), [1, 0]);
   const learner = useNetworkState(createNetwork([2, 5, 1], { hidden: 'tanh', output: 'sigmoid', seed: 4 }), [0.3, 0.3]);
   const squashDemo = useNetworkState(level4.solution(), [1, 0]);
   const [squash, setSquash] = useState<ActivationName>('sigmoid');
+  const [arrow, setArrow] = useState(false);
+
+  // A link like #/how/words lands on that section. The router leaves the
+  // scrolling to us in that case, since only this page knows where it is.
+  useEffect(() => {
+    if (!anchor) return;
+    document.getElementById(`how-${anchor}`)?.scrollIntoView({ block: 'start' });
+  }, [anchor]);
 
   return (
     <div className={css.page}>
@@ -51,9 +75,16 @@ export function HowItWorks() {
             ones the puzzles use, so you can take any of them apart while you read.
           </p>
         </div>
+        <nav className={css.toc} aria-label="On this page">
+          {SECTIONS.map((s) => (
+            <Link key={s.id} to={`/how/${s.id}`}>
+              {s.label}
+            </Link>
+          ))}
+        </nav>
       </div>
 
-      <Section title="A neuron is two kinds of number and a squash">
+      <Section id="neuron" title="A neuron is two kinds of number and a squash">
         <div className={css.split}>
           <div className={`${css.body} prose`}>
             <p>
@@ -63,8 +94,14 @@ export function HowItWorks() {
             </p>
             <p>
               A weight says how much an input counts, and which way: positive weights argue for
-              firing, negative ones argue against. The bias is the neuron's own opinion before any
-              input arrives — it sets how much total is needed before anything happens.
+              firing, negative ones argue against. The bias is the neuron’s own opinion before any
+              input arrives.
+            </p>
+            <p>
+              Put those together and you can see where this site gets its name. The neuron fires
+              when the weighted inputs add up to more than −b, so the bias, with its sign flipped,
+              is the <strong>threshold</strong>: how much evidence is needed before anything
+              happens.
             </p>
             <p>
               Then <em>z</em> goes through a squash, which flattens any number at all into a small,
@@ -91,7 +128,7 @@ export function HowItWorks() {
         </div>
       </Section>
 
-      <Section title="One neuron draws one straight line">
+      <Section id="line" title="One neuron draws one straight line">
         <div className={css.split}>
           <div className={`${css.body} prose`}>
             <p>
@@ -104,10 +141,23 @@ export function HowItWorks() {
               bias slides it back and forth without turning it. Drag anything in the diagram and
               watch which of those two things happens.
             </p>
+            <p>
+              The weights have a direction of their own, too. Switch on the arrow and it stands at
+              right angles to the line, pointing at the side that fires. Turn the weights and the
+              line swings round to stay square to it.
+            </p>
           </div>
           <div className={css.demo}>
             <div className={css.demoRow}>
-              <BoundaryCanvas net={line.net} dataset={CLUSTERS} caption="warm = fires, cool = does not" />
+              <div>
+                <BoundaryCanvas
+                  net={line.net}
+                  dataset={CLUSTERS}
+                  showWeightArrow={arrow}
+                  caption="warm = fires, cool = does not"
+                />
+                <Toggle label="Show which way the weights point" checked={arrow} onChange={setArrow} />
+              </div>
             </div>
             <NetworkView
               net={line.net}
@@ -122,19 +172,25 @@ export function HowItWorks() {
         </div>
       </Section>
 
-      <Section title="A hidden layer turns lines into shapes">
+      <Section id="hidden" title="A hidden layer turns lines into shapes">
         <div className={css.split}>
           <div className={`${css.body} prose`}>
             <p>
               One line is not always enough. XOR wants the two corners on one diagonal kept apart
-              from the two on the other, and no straight line can do that — not a badly chosen one,
+              from the two on the other, and no straight line can do that. Not a badly chosen one,
               not any of them.
             </p>
             <p>
               So put a layer in between. Each neuron in that hidden layer draws its own line and
               reports which side you landed on. The output neuron never sees the original inputs at
-              all; it only weighs up those reports. Two lines, combined, make a corner — and a
-              corner is enough for XOR.
+              all; it only weighs up those reports. Two lines, combined, make a corner, and a corner
+              is enough for XOR.
+            </p>
+            <p>
+              The last picture shows what is really going on. The output neuron does not look at the
+              original square. It looks at where the hidden layer has <em>put</em> each point, and
+              there, one straight line is enough. The hidden layer has not made the last neuron any
+              cleverer; it has changed what that neuron is looking at.
             </p>
             <p>
               That is the whole trick, repeated. Enough detectors, combined by enough layers, and
@@ -163,11 +219,12 @@ export function HowItWorks() {
                 </div>
               </div>
             </div>
+            <HiddenSpace net={xor.net} dataset={XOR} />
           </div>
         </div>
       </Section>
 
-      <Section title="The squash is not a detail">
+      <Section id="squash" title="The squash is not a detail">
         <div className={css.split}>
           <div className={`${css.body} prose`}>
             <p>
@@ -177,8 +234,13 @@ export function HowItWorks() {
             </p>
             <p>
               Which one you pick changes the shape of everything downstream. Swap between them and
-              watch the boundary — and note that the step function, the most obvious choice, is the
-              one that cannot be trained at all, because its slope is zero everywhere.
+              watch the boundary. Note that the step function, the most obvious choice, is the one
+              that cannot be trained at all, because its slope is zero everywhere.
+            </p>
+            <p>
+              The collapse is not a figure of speech, so the second demo does the multiplication.
+              Three hidden neurons with no squash multiply out into a single neuron, and the two
+              pictures come out identical. Put tanh back in and they cannot be.
             </p>
           </div>
           <div className={css.demo}>
@@ -196,11 +258,13 @@ export function HowItWorks() {
               dataset={XOR}
               caption={`the same XOR network, hidden layer using ${squash}`}
             />
+            <p className={css.subhead}>Three neurons, multiplied out</p>
+            <CollapseDemo />
           </div>
         </div>
       </Section>
 
-      <Section title="Training is just nudging, over and over">
+      <Section id="training" title="Training is just nudging, over and over">
         <div className={css.split}>
           <div className={`${css.body} prose`}>
             <p>
@@ -208,22 +272,29 @@ export function HowItWorks() {
               method is less clever than it sounds.
             </p>
             <p>
-              Measure how wrong the answers are — one number, called the loss. Then, for every
-              single weight, work out whether nudging it up or down would make that number smaller.
-              Take a small step in the better direction. Repeat.
+              Measure how wrong the answers are: one number, called the loss. Then, for every single
+              weight, work out whether nudging it up or down would make that number smaller, and
+              take a small step in the better direction. Repeat.
             </p>
             <p>
-              <strong>Backpropagation</strong> is the efficient way to get all those answers at
-              once. Starting at the output, where "how wrong" is obvious, it passes the blame
-              backwards along the same connections the signal came down, so each weight learns its
-              share in one sweep instead of being tested one at a time.
+              It is easiest to see with one weight. Plot the loss against it and you get a bowl, and
+              training is a ball rolling down. At each step you look at the slope under the ball and
+              move against it. The <strong>learning rate</strong> is how far each step goes: too
+              small and the ball crawls, too big and it overshoots the bottom and bounces. Try both
+              in the first picture.
             </p>
             <p>
-              The <strong>learning rate</strong> is how big each step is. Too small and it crawls;
-              too big and it overshoots and thrashes. Try both below.
+              <strong>Backpropagation</strong> is the efficient way to get all those slopes at once.
+              Starting at the output, where “how wrong” is obvious, it passes the blame backwards
+              along the same connections the signal came down, so each weight learns its share in a
+              single sweep instead of being tested one at a time.
             </p>
+            <p>The network below is doing exactly that, to every one of its weights at once.</p>
           </div>
           <div className={css.demo}>
+            <p className={css.subhead}>One weight, up close</p>
+            <GradientDescent1D />
+            <p className={css.subhead}>All of them at once</p>
             <Plate title="A network learning the circle">
               <NetworkView
                 net={learner.net}
@@ -247,6 +318,18 @@ export function HowItWorks() {
               onStartOver={learner.reset}
             />
           </div>
+        </div>
+      </Section>
+
+      <Section id="check" title="Say it in your own words">
+        <div className={css.wide}>
+          <SelfCheck />
+        </div>
+      </Section>
+
+      <Section id="words" title="Words you have met">
+        <div className={css.wide}>
+          <Glossary />
         </div>
       </Section>
 

@@ -5,6 +5,7 @@ import { Inspector } from '../components/Inspector/Inspector';
 import { Ledger } from '../components/Ledger/Ledger';
 import { BoundaryCanvas } from '../components/Boundary/BoundaryCanvas';
 import { TrainPanel } from '../components/TrainPanel';
+import { HiddenSpace } from '../components/HiddenSpace';
 import { Button, Plate, SegmentedControl } from '../components/ui/Controls';
 import { useNetworkState } from '../state/useNetworkState';
 import { useProgress } from '../state/useProgress';
@@ -112,6 +113,10 @@ export function Sandbox() {
             </div>
           </div>
         </Plate>
+
+        {/* Appears whenever the last hidden layer has exactly two neurons, so
+            you can watch a layer untangle a dataset while it trains. */}
+        <HiddenSpace net={net} dataset={dataset} />
 
         <TrainPanel
           net={net}

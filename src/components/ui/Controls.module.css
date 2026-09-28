@@ -256,6 +256,8 @@
 /* ---------------------------------------------------------------- toggle */
 
 .toggle {
+  /* The invisible input is stretched over the whole control, below. */
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
@@ -271,14 +273,22 @@
   color: var(--ink);
 }
 
-/* The real checkbox stays in the layout, invisible, so it keeps its focus and
-   keyboard behaviour. Only its picture is replaced. */
+/*
+ * The real checkbox is invisible but covers the entire control, so what gets
+ * focus, clicks and screen-reader attention is exactly as big as what you can
+ * see. A 1px invisible input beside a decorative box would work for a mouse and
+ * quietly fail for voice control, switch access and anything else that clicks
+ * the middle of "the checkbox".
+ */
 .toggleInput {
   position: absolute;
-  opacity: 0;
-  width: 1px;
-  height: 1px;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
 }
 
 .toggleBox {

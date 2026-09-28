@@ -8,10 +8,15 @@ export function signed(value: number, decimals = 2): string {
   return `${safe >= 0 ? '+' : '−'}${Math.abs(safe).toFixed(decimals)}`;
 }
 
-/** Unsigned, for activations and probabilities which are never negative. */
+/**
+ * A plain fixed-point number. Negatives use the true minus sign, the same one
+ * `signed` uses, so a column of mixed readouts does not switch between two
+ * different-looking dashes.
+ */
 export function fixed(value: number, decimals = 2): string {
   const r = Number(value.toFixed(decimals));
-  return (Object.is(r, -0) ? 0 : r).toFixed(decimals);
+  const text = (Object.is(r, -0) ? 0 : r).toFixed(decimals);
+  return text.startsWith('-') ? `−${text.slice(1)}` : text;
 }
 
 /** For the loss readout, which spans several orders of magnitude. */

@@ -3,6 +3,10 @@
   gap: var(--s-2);
 }
 
+.chartBox {
+  position: relative;
+}
+
 .chart {
   width: 100%;
   /* Stretched horizontally rather than scaled, so a wide panel gets a wide
@@ -64,8 +68,15 @@
   letter-spacing: -0.01em;
 }
 
-.empty {
+.emptyNote {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0 var(--s-3);
   font-family: var(--font-ui);
   font-size: var(--t-mono-xs);
-  fill: var(--muted);
+  color: var(--muted);
+  text-align: center;
+  pointer-events: none;
 }

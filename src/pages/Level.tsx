@@ -6,6 +6,8 @@ import { Ledger } from '../components/Ledger/Ledger';
 import { BoundaryCanvas, MiniBoundary, miniRowClass } from '../components/Boundary/BoundaryCanvas';
 import { TrainPanel } from '../components/TrainPanel';
 import { TruthTable } from '../components/TruthTable';
+import { GoDeeper } from '../components/GoDeeper';
+import { SelfCheck } from '../components/SelfCheck';
 import { Button, Pips, Plate, SegmentedControl, Toggle } from '../components/ui/Controls';
 import { useNetworkState } from '../state/useNetworkState';
 import { useProgress, LEVEL_COUNT } from '../state/useProgress';
@@ -359,6 +361,14 @@ function LevelScreen({ id }: { id: number }) {
             <div className="prose">
               <p>{stage.learned}</p>
             </div>
+            {level.id === LEVEL_COUNT && (
+              <section className={css.recap} aria-labelledby="recap-title">
+                <h2 id="recap-title" className={css.wallTitle}>
+                  Can you say it in your own words?
+                </h2>
+                <SelfCheck />
+              </section>
+            )}
             <div className={css.actions}>
               {!lastStage ? (
                 <Button variant="primary" onClick={nextStage}>
@@ -380,6 +390,12 @@ function LevelScreen({ id }: { id: number }) {
               )}
             </div>
           </div>
+        )}
+
+        {ex.deeper && (ex.deeper.after !== 'escape' || escaped) && (
+          <GoDeeper title={ex.deeper.title}>
+            <ex.deeper.Body net={net} dataset={stage.dataset} />
+          </GoDeeper>
         )}
       </div>
     </div>

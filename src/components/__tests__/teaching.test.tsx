@@ -118,3 +118,212 @@ describe('<Toggle>', () => {
     expect(screen.getByRole('checkbox', { name: 'Arrow' })).toBeChecked();
   });
 });
+
+/* ------------------------------------------------------------------ */
+
+import { act } from '@testing-library/react';
+import { GradientDescent1D } from '../GradientDescent1D';
+import { CollapseDemo } from '../CollapseDemo';
+
+/** The number under a readout heading, e.g. readout('slope'). */
+function readout(name: string): string {
+  const dt = screen.getByText(name, { selector: 'dt' });
+  return dt.parentElement!.querySelector('dd')!.textContent!;
+}
+
+const setSlider = (label: string, value: number) =>
+  fireEvent.change(screen.getByLabelText(label), { target: { value: String(value) } });
+
+describe('<GradientDescent1D>', () => {
+  it('starts the ball on the left wall of the bowl, with the slope pointing downhill', () => {
+    render(<GradientDescent1D />);
+    expect(readout('weight')).toBe('−0.60');
+    expect(readout('loss')).toBe('6.76');
+    expect(readout('slope')).toBe('−5.20');
+    expect(readout('steps')).toBe('0');
+  });
+
+  it('a step moves the weight against the slope by learning rate times its size', () => {
+    render(<GradientDescent1D />);
+    // Default rate 0.3: -0.6 - 0.3 × (-5.2) = 0.96.
+    fireEvent.click(screen.getByRole('button', { name: 'Take a step' }));
+    expect(readout('weight')).toBe('0.96');
+    expect(readout('steps')).toBe('1');
+    expect(readout('slope')).toBe('−2.08');
+  });
+
+  it('agrees with itself: the slope it measures is the slope calculus gives', () => {
+    render(<GradientDescent1D />);
+    expect(screen.getByText(/Calculus gives −5\.20, and the two agree/)).toBeInTheDocument();
+  });
+
+  it('at exactly half the slope, one step lands on the bottom and it says so', () => {
+    render(<GradientDescent1D />);
+    setSlider('Learning rate', 0.5);
+    expect(screen.getByRole('status')).toHaveTextContent(/Exactly half/);
+    fireEvent.click(screen.getByRole('button', { name: 'Take a step' }));
+    expect(readout('weight')).toBe('2.00');
+    expect(screen.getByRole('status')).toHaveTextContent(/Settled at the bottom/);
+    // Nowhere further downhill, so there is nothing left to press.
+    expect(screen.getByRole('button', { name: 'Take a step' })).toBeDisabled();
+  });
+
+  it('describes each regime as you drag the rate through them', () => {
+    render(<GradientDescent1D />);
+    const says = (rate: number, pattern: RegExp) => {
+      setSlider('Learning rate', rate);
+      expect(screen.getByRole('status')).toHaveTextContent(pattern);
+    };
+    says(0.04, /Too small/);
+    says(0.25, /About right/);
+    says(0.8, /Getting big/);
+    says(1.1, /Too big/);
+  });
+
+  it('flies off the chart at a high rate, and says what that means', () => {
+    render(<GradientDescent1D />);
+    setSlider('Learning rate', 1.2);
+    const step = screen.getByRole('button', { name: 'Take a step' });
+    for (let i = 0; i < 12 && !step.hasAttribute('disabled'); i++) fireEvent.click(step);
+    expect(screen.getByRole('status')).toHaveTextContent(/flown off the chart/);
+    expect(readout('weight')).toBe('—');
+    expect(step).toBeDisabled();
+  });
+
+  it('starts again from the same place', () => {
+    render(<GradientDescent1D />);
+    fireEvent.click(screen.getByRole('button', { name: 'Take a step' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Start again' }));
+    expect(readout('steps')).toBe('0');
+    expect(readout('slope')).toBe('−5.20');
+  });
+
+  it('lets you drop the ball somewhere else', () => {
+    render(<GradientDescent1D />);
+    setSlider('Start the ball at weight', 4);
+    expect(readout('weight')).toBe('4.00');
+    expect(readout('slope')).toBe('+4.00');
+  });
+
+  it('keeps going by itself, one step at a time, and can be paused', () => {
+    vi.useFakeTimers();
+    try {
+      render(<GradientDescent1D />);
+      fireEvent.click(screen.getByRole('button', { name: 'Keep going' }));
+      act(() => {
+        vi.advanceTimersByTime(400 * 3);
+      });
+      expect(readout('steps')).toBe('3');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Pause' }));
+      act(() => {
+        vi.advanceTimersByTime(400 * 5);
+      });
+      expect(readout('steps')).toBe('3');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('stops on its own once it has settled', () => {
+    vi.useFakeTimers();
+    try {
+      render(<GradientDescent1D />);
+      setSlider('Learning rate', 0.5);
+      fireEvent.click(screen.getByRole('button', { name: 'Keep going' }));
+      // One tick at a time, as in life: React renders (and notices the ball has
+      // settled) between one tick and the next. Six ticks inside a single act
+      // would give it no chance to.
+      for (let tick = 0; tick < 6; tick++) {
+        act(() => {
+          vi.advanceTimersByTime(400);
+        });
+      }
+      // One step to land, then it notices there is nowhere left to go.
+      expect(readout('steps')).toBe('1');
+      expect(screen.getByRole('button', { name: 'Keep going' })).toBeDisabled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('draws a chart a screen reader can get the state from', () => {
+    render(<GradientDescent1D />);
+    const chart = screen.getByRole('img', { name: /bowl-shaped loss curve/ });
+    // Negatives are spoken as "minus", not left as a dash for the reader to guess at.
+    expect(chart).toHaveAccessibleName(/ball is at weight minus 0\.60/);
+    expect(chart).toHaveAccessibleName(/slope is minus 5\.20/);
+    expect(chart).toHaveAccessibleName(/next step would take it to 0\.96/);
+  });
+});
+
+describe('<CollapseDemo>', () => {
+  it('shows the single neuron the three hidden ones multiply out to', () => {
+    render(<CollapseDemo />);
+    expect(screen.getByText(/weights \(\+10\.00, −7\.50\), bias \+1\.42/)).toBeInTheDocument();
+    expect(screen.getByText('One neuron')).toBeInTheDocument();
+    expect(screen.getAllByRole('img')).toHaveLength(2);
+  });
+
+  it('has nothing true to show as a single neuron once a squash is in the way', () => {
+    render(<CollapseDemo />);
+    fireEvent.click(screen.getByRole('radio', { name: 'tanh' }));
+    expect(screen.queryByText(/weights \(/)).toBeNull();
+    expect(screen.getByText(/The squash gets in the way/)).toBeInTheDocument();
+    expect(screen.getAllByRole('img')).toHaveLength(1);
+  });
+});
+
+import { LossCurve } from '../LossCurve';
+
+describe('the drawing of the bowl', () => {
+  /** Twice the area of the triangle: zero exactly when three points are in a line. */
+  const cross = (a: [number, number], b: [number, number], c: [number, number]) =>
+    (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+
+  it.each([-0.95, -0.6, 0.4, 2, 3.3, 4.9])(
+    'draws a tangent that passes through the ball, even close to the edge of the chart (weight %s)',
+    (start) => {
+      const { container, unmount } = render(<GradientDescent1D />);
+      setSlider('Start the ball at weight', start);
+      // At the very bottom the slope is zero and a flat line is the tangent.
+      const ball = container.querySelector('circle[class*="ball"]')!;
+      const line = container.querySelector('line[class*="tangent"]')!;
+      const num = (el: Element, name: string) => Number(el.getAttribute(name));
+      const centre: [number, number] = [num(ball, 'cx'), num(ball, 'cy')];
+      const a: [number, number] = [num(line, 'x1'), num(line, 'y1')];
+      const b: [number, number] = [num(line, 'x2'), num(line, 'y2')];
+      // Collinear, to within a fraction of a pixel of error.
+      const lengthOfLine = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      expect(Math.abs(cross(a, b, centre)) / lengthOfLine).toBeLessThan(0.5);
+      unmount();
+    },
+  );
+
+  it('colours the tangent by which way the ground slopes, like every other signed thing here', () => {
+    const { container } = render(<GradientDescent1D />);
+    setSlider('Start the ball at weight', 0);
+    expect(container.querySelector('line[class*="tangentNeg"]')).not.toBeNull();
+    setSlider('Start the ball at weight', 4);
+    expect(container.querySelector('line[class*="tangentPos"]')).not.toBeNull();
+  });
+});
+
+describe('<LossCurve>', () => {
+  it('keeps its empty-state words out of the stretched drawing, where they would be distorted', () => {
+    render(<LossCurve history={[]} step={0} accuracy={null} />);
+    const note = screen.getByText('Press Train network to start.');
+    expect(note.closest('svg')).toBeNull();
+  });
+
+  it('drops the note once there is a curve to look at', () => {
+    render(<LossCurve history={[1, 0.8, 0.6, 0.5]} step={3} accuracy={0.5} />);
+    expect(screen.queryByText('Press Train network to start.')).toBeNull();
+    expect(screen.getByText('50%')).toBeInTheDocument();
+  });
+
+  it('shows dashes rather than misleading zeros before a run has started', () => {
+    render(<LossCurve history={[]} step={0} accuracy={null} />);
+    expect(screen.getAllByText('—')).toHaveLength(3);
+  });
+});

@@ -70,9 +70,21 @@ src/
 arrays, and every function that changes one returns a new one, which is what
 makes the diagrams and the undo-free sandbox straightforward.
 
+## Where the teaching lives
+
+The levels are deliberately short: a sentence or two, a puzzle, a note on what you just worked out. Everything else is optional and sits underneath, so the twenty-minute path stays twenty minutes.
+
+- `src/content/deeper.tsx` is the "Go deeper" note under each level. Each is written to be spoiler-safe, because it is open while you are still stuck; level 4's stays hidden until the hidden layer has been taken.
+- `src/content/glossary.ts` is the words the site uses, alphabetical, each with where you first meet it.
+- `src/content/selfCheck.ts` is the five things a visitor should leave able to explain, asked before they are answered.
+- `src/components/FourDemands.tsx` is the interactive argument for why one neuron can never do XOR. It appears after a few failed attempts, next to the hidden layer rather than in front of it.
+- `src/components/HiddenSpace.tsx`, `CollapseDemo.tsx` and `GradientDescent1D.tsx` are the three explainers: what a hidden layer does to the data, why layers with no squash are one layer in disguise, and gradient descent on a single weight.
+
+The How it works page has a table of contents and section links, so `#/how/words` lands on the glossary.
+
 ## Tests
 
-`npm test` runs 158 of them. The ones worth knowing about:
+`npm test` runs the whole suite. The ones worth knowing about:
 
 - **Backprop is checked against numerical gradients** across four network
   shapes, four activation functions and both loss functions. The calculus is
@@ -85,3 +97,13 @@ makes the diagrams and the undo-free sandbox straightforward.
 - **Level 7's answer is found, not written down.** Its "known solution" is
   produced by running the same training step the Train button runs, at the
   shipped default learning rate.
+- **The XOR argument is checked, not just argued.** The two pair-sums in level 4's
+  explainer are the same number for every possible weight (`w1 + w2 + 2b`), so
+  one of the two demands always fails. A test confirms it across hundreds of
+  random neurons, and that no single neuron ever satisfies all four.
+- **The collapse claim is proved numerically.** Layers with no squash multiply
+  out into one layer, and `collapseLinear` does exactly that; tests confirm the
+  result answers identically to the original across many shapes and inputs.
+- **The learning-rate captions match the simulation.** For every rate the slider
+  can reach, the widget's "too small / about right / getting big / too big"
+  label is compared against what the ball actually does over twenty steps.

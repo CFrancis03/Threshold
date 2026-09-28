@@ -1,0 +1,146 @@
+.wrap {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.chart {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  background: var(--panel);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-sm);
+}
+
+.axis {
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+}
+
+.bowl {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.75;
+}
+
+.best {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+
+.tick {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  fill: var(--muted);
+}
+
+/* The slope, drawn as the line that just touches the bowl. Coloured by sign,
+   like everything else on the site: copper for uphill to the right, steel for
+   downhill. */
+.tangentPos {
+  stroke: var(--excite);
+  stroke-width: 1.75;
+}
+
+.tangentNeg {
+  stroke: var(--inhibit);
+  stroke-width: 1.75;
+  stroke-dasharray: 5 3;
+}
+
+.step {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.arrowHead {
+  fill: var(--ink);
+}
+
+.trail {
+  fill: var(--ink);
+}
+
+.ghost {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  stroke-dasharray: 2.5 2.5;
+}
+
+.ball {
+  fill: var(--live);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.ballOff {
+  fill: var(--panel);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+  margin: 0;
+}
+
+.readouts div {
+  display: grid;
+  gap: 0;
+}
+
+.readouts dt {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+}
+
+.readouts dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-base);
+  letter-spacing: -0.01em;
+}
+
+.verdict {
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  line-height: 1.5;
+  min-height: 3em;
+  margin: 0;
+}
+
+.verdictWarn {
+  color: var(--alert);
+}
+
+.footnote {
+  font-family: var(--font-ui);
+  font-size: var(--t-mono-xs);
+  color: var(--muted);
+  margin: 0;
+  max-width: var(--measure);
+}
+
+@media (max-width: 520px) {
+  .controls {
+    grid-template-columns: 1fr;
+    gap: var(--s-2);
+  }
+}

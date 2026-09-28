@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { FourDemands } from '../components/FourDemands';
 import { HiddenSpace } from '../components/HiddenSpace';
+import { deeper, type Deeper } from '../content/deeper';
 import type { Dataset } from '../nn/datasets';
 import type { Network } from '../nn/types';
 
@@ -32,9 +33,16 @@ export interface LevelExtras {
   Peek?: ComponentType<PeekProps>;
   /** A switch under the boundary picture that draws which way the weights point. */
   arrowToggle?: string;
+  /** The optional layer of explanation under the level. */
+  deeper?: Deeper;
 }
 
-export const extras: Record<number, LevelExtras> = {
+const own: Record<number, Omit<LevelExtras, 'deeper'>> = {
   3: { arrowToggle: 'Show which way the weights point' },
   4: { Wall: FourDemands, Peek: HiddenSpace },
 };
+
+/** Every level has depth notes; a few also have interactive extras of their own. */
+export const extras: Record<number, LevelExtras> = Object.fromEntries(
+  Array.from({ length: 7 }, (_, i) => i + 1).map((id) => [id, { ...own[id], deeper: deeper[id] }]),
+);

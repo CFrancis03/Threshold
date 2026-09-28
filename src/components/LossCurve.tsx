@@ -44,6 +44,7 @@ export function LossCurve({ history, step, accuracy, width = 320, height = 104 }
         <span className="label">Loss</span>
         <span className="caption">log scale</span>
       </div>
+      <div className={css.chartBox}>
       <svg
         className={css.chart}
         viewBox={`0 0 ${width} ${height}`}
@@ -56,14 +57,11 @@ export function LossCurve({ history, step, accuracy, width = 320, height = 104 }
         }
       >
         <line className={css.grid} x1={0} y1={height - 4} x2={width} y2={height - 4} vectorEffect="non-scaling-stroke" />
-        {path ? (
-          <path className={css.line} d={path} />
-        ) : (
-          <text className={css.empty} x={10} y={height / 2}>
-            Press Train network to start.
-          </text>
-        )}
+        {path && <path className={css.line} d={path} />}
       </svg>
+      {/* Words in a stretched SVG get stretched with it, so this is HTML. */}
+      {!path && <span className={css.emptyNote}>Press Train network to start.</span>}
+      </div>
       <div className={css.readouts}>
         <span className={css.readout}>
           <span className={css.readoutLabel}>loss</span>

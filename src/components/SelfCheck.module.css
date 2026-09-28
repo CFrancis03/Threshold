@@ -1,0 +1,103 @@
+.wrap {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.lead {
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  line-height: 1.55;
+  max-width: var(--measure);
+  margin: 0;
+}
+
+.list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: q;
+  border-top: 1px solid var(--rule);
+}
+
+.item {
+  counter-increment: q;
+  display: grid;
+  gap: var(--s-1);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.prompt {
+  display: flex;
+  gap: var(--s-3);
+  margin: 0;
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* A quiet number, because this is a sequence you work down. */
+.prompt::before {
+  content: counter(q);
+  flex: none;
+  width: 1.2rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-xs);
+  font-weight: 400;
+  color: var(--muted);
+  padding-top: 0.28em;
+}
+
+.reveal {
+  margin-left: calc(1.2rem + var(--s-3));
+}
+
+.reveal > summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--muted);
+  list-style: none;
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.25em;
+}
+
+.reveal > summary::-webkit-details-marker {
+  display: none;
+}
+
+.reveal > summary:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
+.reveal > summary:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--live-soft);
+  border-radius: var(--r-sm);
+}
+
+.answer {
+  margin: var(--s-1) 0 var(--s-1);
+  padding-left: var(--s-4);
+  border-left: 2px solid var(--live);
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: var(--measure);
+}
+
+@media (max-width: 900px) {
+  .reveal > summary {
+    min-height: 44px;
+  }
+}

@@ -1,0 +1,72 @@
+.wrap {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.panes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-4);
+  align-items: start;
+}
+
+.pane {
+  display: grid;
+  gap: var(--s-2);
+  min-width: 0;
+}
+
+/* The boundary canvas caps itself at a size that suits a page of its own; in a
+   pair it should fill its half. */
+.pane > figure {
+  max-width: 100%;
+  margin-inline: 0;
+}
+
+.paneTitle {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* Where the second picture would be, when there is nothing true to show. */
+.blocked {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--s-3);
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--r-sm);
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  line-height: 1.45;
+  color: var(--muted);
+  text-align: center;
+}
+
+.equation {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-xs);
+  line-height: 1.6;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  padding: var(--s-2) var(--s-3);
+  overflow-x: auto;
+}
+
+.verdict {
+  font-family: var(--font-prose);
+  font-size: var(--t-base);
+  line-height: 1.5;
+  margin: 0;
+  max-width: var(--measure);
+}
+
+@media (max-width: 420px) {
+  .panes {
+    gap: var(--s-2);
+  }
+}

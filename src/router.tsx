@@ -14,7 +14,7 @@ export type Route =
   | { name: 'levels' }
   | { name: 'level'; id: number }
   | { name: 'sandbox' }
-  | { name: 'how' };
+  | { name: 'how'; anchor?: string };
 
 function subscribe(onChange: () => void) {
   window.addEventListener('hashchange', onChange);
@@ -37,7 +37,8 @@ export function parseRoute(path: string): Route {
     case 'sandbox':
       return { name: 'sandbox' };
     case 'how':
-      return { name: 'how' };
+      // #/how/words scrolls to the glossary, so a section can be linked to.
+      return parts[1] ? { name: 'how', anchor: parts[1] } : { name: 'how' };
     default:
       return { name: 'landing' };
   }
@@ -45,12 +46,16 @@ export function parseRoute(path: string): Route {
 
 export function useRoute(): Route {
   const path = useSyncExternalStore(subscribe, readHash, () => '/');
+  const route = parseRoute(path);
+  const hasAnchor = route.name === 'how' && Boolean(route.anchor);
   // Scrolling back to the top on navigation is the one bit of browser
-  // behaviour hash routing takes away, so put it back.
+  // behaviour hash routing takes away, so put it back — unless the address
+  // names a place on the page to land, in which case that page does the
+  // scrolling itself.
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [path]);
-  return parseRoute(path);
+    if (!hasAnchor) window.scrollTo(0, 0);
+  }, [path, hasAnchor]);
+  return route;
 }
 
 export function navigate(path: string) {

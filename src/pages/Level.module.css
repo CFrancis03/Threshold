@@ -216,6 +216,14 @@
   max-width: var(--measure);
 }
 
+/* The check-yourself at the end of the game, set off like the note above it. */
+.recap {
+  display: grid;
+  gap: var(--s-3);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule);
+}
+
 /* Something that can be scrolled to needs to clear the sticky rail. */
 .plateAnchor {
   scroll-margin-top: 64px;
